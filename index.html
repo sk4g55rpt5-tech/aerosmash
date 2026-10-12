@@ -268,6 +268,13 @@
   .ac-item + .ac-item { border-top:1px solid var(--line-2); }
   .ac-item:active { background:var(--brand-soft); }
   .ac-add { font-size:11px; color:var(--brand-2); font-weight:700; }
+  .ac-wrap { position:relative; }
+  .ac-wrap .input { padding-right:48px; }
+  .ac-toggle { position:absolute; right:4px; top:4px; width:40px; height:38px; border-radius:9px; font-size:18px; color:var(--ink-2); background:var(--surface-2); }
+  .ac-head { position:sticky; top:0; background:var(--surface-2); padding:8px 14px; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; font-weight:700; color:var(--ink-3); border-bottom:1px solid var(--line-2); }
+  .ac-meta { font-size:11px; color:var(--ink-3); font-family:var(--mono); }
+  .ac-empty { padding:14px; font-size:13px; color:var(--ink-3); }
+  .autocomplete { max-height:320px; -webkit-overflow-scrolling:touch; }
 
   /* ---------- Roster ---------- */
   .prow { display:grid; grid-template-columns:34px 1fr auto auto; gap:10px; align-items:center; padding:10px 14px; }
@@ -411,6 +418,10 @@
       <button data-filter="credit">Payments</button>
       <button data-filter="debit">Expenses</button>
     </div>
+    <div class="filter">
+      <span class="filter-label">📅 Month</span>
+      <select class="select" id="ledger-month"><option value="all">All Months</option></select>
+    </div>
     <div class="search"><input class="input" id="ledger-search" type="search" placeholder="Search name or details" autocomplete="off"></div>
     <div class="ledger-sum" id="ledger-sum"></div>
     <div id="ledger-list"></div>
@@ -428,7 +439,10 @@
     <form class="form-card" id="form-credit" autocomplete="off">
       <div class="field">
         <label for="cr-player">Player</label>
-        <input class="input" id="cr-player" type="text" placeholder="Type 2+ letters of name" autocomplete="off" autocapitalize="words" required>
+        <div class="ac-wrap">
+          <input class="input" id="cr-player" type="text" placeholder="Tap to pick, or type a few letters" autocomplete="off" autocorrect="off" spellcheck="false" autocapitalize="words" required>
+          <button type="button" class="ac-toggle" id="cr-ac-toggle" aria-label="Show all players">▾</button>
+        </div>
         <div class="autocomplete" id="cr-ac"></div>
       </div>
       <div class="field" id="recent-wrap">
@@ -543,8 +557,8 @@
 
     <div class="form-card">
       <div class="form-title">Danger zone</div>
-      <div class="form-sub">Load sample data or wipe everything on this phone.</div>
-      <button class="btn btn-outline" onclick="seedDemo()">⚡ Load sample data</button>
+      <div class="form-sub">Re-add any missing built-in entries, or wipe everything on this phone.</div>
+      <button class="btn btn-outline" onclick="seedDemo()">⟳ Re-check built-in Apr–Sep data</button>
       <button class="btn btn-danger-outline" onclick="resetAll()">⊘ Reset everything</button>
     </div>
   </section>
@@ -671,57 +685,70 @@ const colorFor = name => {
 function getMeta() { try { return JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch (e) { return {}; } }
 function setMeta(patch) { try { localStorage.setItem(META_KEY, JSON.stringify({ ...getMeta(), ...patch })); } catch (e) {} }
 
+/* Complete ledger from backup "aero-smash-ledger-2026-10-12.json" (Apr–Sep 2026), unchanged */
+const SEED_VERSION = '2026-10-12';
+const SEED_DATA = {"players":[{"id":"dwysdc27","name":"Saju Narendran Vetiyatil"},{"id":"v6wm2ne8","name":"Rajeev Ranjan"},{"id":"w92c0kjp","name":"Sivaram Choppalli"},{"id":"o6qwyp4w","name":"Surendhar R G"},{"id":"qtxe6faz","name":"Kottapalli Praveen Kumar Reddy"},{"id":"17ybb5q0","name":"Rajan Kumar"},{"id":"drrmjkaf","name":"Pritam Dey"},{"id":"4nnzz2bt","name":"Ajith"},{"id":"wjhu4idc","name":"Navdeep Thakur"},{"id":"68kig6wy","name":"Tanmaya Kumar Mohanty"},{"id":"50xo1431","name":"Vatsayan Vijay"},{"id":"12inzzrj","name":"Nikhil Reddy"},{"id":"dwcg8i87","name":"Raja Shekar"},{"id":"8p7vjdwl","name":"Sachin Kumar"},{"id":"llxzw4a3","name":"Dileep Kumar"},{"id":"lhdkleo8","name":"Raghavendra"},{"id":"ko4jcwlc","name":"Vidhun PV"},{"id":"kmeh5lxe","name":"Jerin"},{"id":"pi2nseyj","name":"Mahantesh"},{"id":"pzgnpzj7","name":"Dhanu"},{"id":"do4j61ip","name":"Vicky"},{"id":"n2wqln3u","name":"Dileep Shenoy"},{"id":"298y8flo","name":"Sai Reddy"},{"id":"fxf39hdn","name":"Jetendra"},{"id":"pcmwkeo8","name":"Gokul"},{"id":"di62turi","name":"Kumar"},{"id":"97xffu5m","name":"Kunal"},{"id":"u3n534p1","name":"Arul Prakash"},{"id":"ry3hdamc","name":"Rajath"},{"id":"exwcm0cq","name":"Swapnil"},{"id":"lw2cftid","name":"Anshu"},{"id":"7w9jhde7","name":"Keshav Singh"},{"id":"h3vagjqz","name":"Ajay Krishnan"},{"id":"2op410r6","name":"Sunil Kumar"},{"id":"obnsudwn","name":"Anbu"},{"id":"xv6fui12","name":"Surya"},{"id":"cff9hnh4","name":"Ruchit"},{"id":"cv32bk8i","name":"Naveen"},{"id":"x8hezslh","name":"Tilak"},{"id":"r3t7628r","name":"Veera"},{"id":"5zta92uj","name":"Anu B"},{"id":"uozcmobe","name":"Aravind"}],"categories":[{"id":"5p8nflsl","name":"Court Booking"},{"id":"5ujofpyq","name":"Shuttle Purchase"},{"id":"0mp4kotp","name":"Additional Court Booking"},{"id":"hdvsg3eb","name":"New Shuttle Box"},{"id":"b97ghcij","name":"Monthly Court Booking"}],"txns":[{"id":"ud12mapr","type":"credit","refId":"dwysdc27","detail":"","amount":420,"count":4,"date":"2026-04-28"},{"id":"87cl2e7p","type":"credit","refId":"dwysdc27","detail":"","amount":930,"count":11,"date":"2026-06-25"},{"id":"zks7j0u0","type":"credit","refId":"v6wm2ne8","detail":"","amount":590,"count":7,"date":"2026-06-25"},{"id":"7njs7r3k","type":"credit","refId":"w92c0kjp","detail":"","amount":390,"count":4,"date":"2026-06-25"},{"id":"ouzw2sel","type":"credit","refId":"o6qwyp4w","detail":"","amount":600,"count":4,"date":"2026-06-25"},{"id":"ba9ip76k","type":"credit","refId":"qtxe6faz","detail":"","amount":175,"count":3,"date":"2026-04-28"},{"id":"5q5f8rj9","type":"credit","refId":"qtxe6faz","detail":"","amount":160,"count":2,"date":"2026-06-25"},{"id":"8uixblq9","type":"credit","refId":"17ybb5q0","detail":"","amount":190,"count":2,"date":"2026-06-25"},{"id":"yrcascgo","type":"credit","refId":"drrmjkaf","detail":"","amount":160,"count":2,"date":"2026-06-25"},{"id":"msum600j","type":"credit","refId":"4nnzz2bt","detail":"","amount":150,"count":2,"date":"2026-04-28"},{"id":"4mjs2txp","type":"credit","refId":"wjhu4idc","detail":"","amount":100,"count":1,"date":"2026-04-28"},{"id":"m0kaak00","type":"credit","refId":"68kig6wy","detail":"","amount":90,"count":1,"date":"2026-06-25"},{"id":"pxzrvr3r","type":"credit","refId":"50xo1431","detail":"","amount":85,"count":1,"date":"2026-06-25"},{"id":"8wqhexs5","type":"credit","refId":"12inzzrj","detail":"","amount":160,"count":2,"date":"2026-06-25"},{"id":"tp11hqwf","type":"credit","refId":"dwcg8i87","detail":"","amount":160,"count":1,"date":"2026-06-25"},{"id":"1s6ixcqt","type":"debit","refId":"5p8nflsl","detail":"6 days × ₹285 / day","amount":1710,"count":0,"date":"2026-04-28"},{"id":"5deox51c","type":"debit","refId":"0mp4kotp","detail":"1 session × 30 mins","amount":135,"count":0,"date":"2026-06-15"},{"id":"grxlgjmv","type":"debit","refId":"5ujofpyq","detail":"2 shuttle cocks × ₹250","amount":500,"count":0,"date":"2026-06-20"},{"id":"ceg66k00","type":"debit","refId":"5p8nflsl","detail":"Extra court on 26th June","amount":270,"count":0,"date":"2026-06-26"},{"id":"r56g8ko2","type":"credit","refId":"12inzzrj","detail":"","amount":80,"count":1,"date":"2026-06-29"},{"id":"pb4ktpxj","type":"credit","refId":"o6qwyp4w","detail":"","amount":80,"count":1,"date":"2026-06-29"},{"id":"h14uclqb","type":"credit","refId":"dwysdc27","detail":"","amount":80,"count":1,"date":"2026-06-29"},{"id":"7obh0geo","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-07-02"},{"id":"k4lcwb1c","type":"credit","refId":"dwysdc27","detail":"","amount":80,"count":1,"date":"2026-07-01"},{"id":"fgtux1yz","type":"credit","refId":"12inzzrj","detail":"","amount":80,"count":1,"date":"2026-07-01"},{"id":"27yg457s","type":"credit","refId":"dwysdc27","detail":"","amount":170,"count":2,"date":"2026-06-27"},{"id":"mkrafkit","type":"credit","refId":"o6qwyp4w","detail":"","amount":760,"count":4,"date":"2026-06-27"},{"id":"cl605ftr","type":"debit","refId":"5p8nflsl","detail":"27th Court Booking for 2 Hours","amount":600,"count":0,"date":"2026-06-27"},{"id":"4kaan1jk","type":"debit","refId":"5ujofpyq","detail":"June Month - Paid by Shiva (Transferred to Siva)","amount":1200,"count":0,"date":"2026-06-30"},{"id":"icpckc5d","type":"credit","refId":"8p7vjdwl","detail":"","amount":90,"count":1,"date":"2026-07-03"},{"id":"scfpcdwo","type":"credit","refId":"dwcg8i87","detail":"","amount":80,"count":1,"date":"2026-07-03"},{"id":"92vf8oal","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-07-03"},{"id":"8wvhczep","type":"credit","refId":"dwysdc27","detail":"","amount":110,"count":1,"date":"2026-07-03"},{"id":"9zskdq0m","type":"credit","refId":"v6wm2ne8","detail":"","amount":100,"count":1,"date":"2026-07-06"},{"id":"xu1w76l1","type":"credit","refId":"8p7vjdwl","detail":"","amount":100,"count":1,"date":"2026-07-06"},{"id":"yu2e117f","type":"credit","refId":"o6qwyp4w","detail":"","amount":100,"count":1,"date":"2026-07-06"},{"id":"prr2pa3a","type":"credit","refId":"dwysdc27","detail":"","amount":100,"count":1,"date":"2026-07-06"},{"id":"dcwgjyqc","type":"debit","refId":"5p8nflsl","detail":"Extra Court - 6th July","amount":270,"count":0,"date":"2026-07-06"},{"id":"38dvx7pn","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-07-17"},{"id":"i7fczpdg","type":"credit","refId":"llxzw4a3","detail":"","amount":80,"count":1,"date":"2026-07-17"},{"id":"5dvuoont","type":"credit","refId":"v6wm2ne8","detail":"","amount":95,"count":1,"date":"2026-07-16"},{"id":"bnflxwnf","type":"credit","refId":"dwysdc27","detail":"","amount":90,"count":1,"date":"2026-07-16"},{"id":"p89oau52","type":"credit","refId":"llxzw4a3","detail":"","amount":95,"count":1,"date":"2026-07-16"},{"id":"jtvs9xyl","type":"credit","refId":"lhdkleo8","detail":"","amount":95,"count":1,"date":"2026-07-16"},{"id":"buht9c5t","type":"credit","refId":"ko4jcwlc","detail":"","amount":95,"count":1,"date":"2026-07-16"},{"id":"x3wrtv65","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-07-15"},{"id":"9uu741ll","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-07-15"},{"id":"a4kec53i","type":"credit","refId":"ko4jcwlc","detail":"","amount":80,"count":1,"date":"2026-07-15"},{"id":"pkwnepyo","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-07-14"},{"id":"9ksqsdpb","type":"credit","refId":"kmeh5lxe","detail":"","amount":80,"count":1,"date":"2026-07-14"},{"id":"ir2r9kbb","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-07-13"},{"id":"5ne89t0t","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-07-13"},{"id":"2q31jbre","type":"credit","refId":"dwysdc27","detail":"","amount":85,"count":1,"date":"2026-07-11"},{"id":"5ndeoora","type":"credit","refId":"pi2nseyj","detail":"","amount":85,"count":1,"date":"2026-07-10"},{"id":"ba2dbmyo","type":"credit","refId":"8p7vjdwl","detail":"","amount":85,"count":1,"date":"2026-07-10"},{"id":"8b7lit1a","type":"credit","refId":"12inzzrj","detail":"","amount":185,"count":2,"date":"2026-07-10"},{"id":"hnb3vuqk","type":"credit","refId":"8p7vjdwl","detail":"","amount":100,"count":1,"date":"2026-07-09"},{"id":"ghks9my7","type":"credit","refId":"dwcg8i87","detail":"","amount":80,"count":1,"date":"2026-07-09"},{"id":"rtgun7le","type":"credit","refId":"dwysdc27","detail":"","amount":75,"count":1,"date":"2026-07-08"},{"id":"eptrfqpy","type":"credit","refId":"12inzzrj","detail":"","amount":80,"count":1,"date":"2026-07-08"},{"id":"doawrzef","type":"credit","refId":"pzgnpzj7","detail":"","amount":85,"count":1,"date":"2026-07-08"},{"id":"b5lvjcyr","type":"credit","refId":"dwysdc27","detail":"","amount":100,"count":2,"date":"2026-07-08"},{"id":"qgze7egg","type":"credit","refId":"12inzzrj","detail":"","amount":90,"count":1,"date":"2026-07-07"},{"id":"vowajq7c","type":"credit","refId":"v6wm2ne8","detail":"","amount":90,"count":1,"date":"2026-07-07"},{"id":"5su5cxij","type":"credit","refId":"8p7vjdwl","detail":"","amount":90,"count":1,"date":"2026-07-07"},{"id":"m4q77aaq","type":"credit","refId":"dwysdc27","detail":"","amount":80,"count":1,"date":"2026-07-06"},{"id":"ye7g202e","type":"debit","refId":"5p8nflsl","detail":"Extra Court - 9th July","amount":270,"count":0,"date":"2026-07-09"},{"id":"duimll4x","type":"debit","refId":"5p8nflsl","detail":"Extra Court - 16th July","amount":270,"count":0,"date":"2026-07-16"},{"id":"80h5yxee","type":"credit","refId":"8p7vjdwl","detail":"","amount":80,"count":1,"date":"2026-07-20"},{"id":"xy2651o4","type":"credit","refId":"do4j61ip","detail":"","amount":80,"count":1,"date":"2026-07-20"},{"id":"3p228ct1","type":"credit","refId":"w92c0kjp","detail":"","amount":230,"count":1,"date":"2026-07-27"},{"id":"6t3ug2ht","type":"credit","refId":"w92c0kjp","detail":"","amount":390,"count":1,"date":"2026-07-24"},{"id":"8yb2qk7u","type":"credit","refId":"w92c0kjp","detail":"","amount":590,"count":1,"date":"2026-07-22"},{"id":"7z825upa","type":"credit","refId":"w92c0kjp","detail":"","amount":280,"count":1,"date":"2026-07-21"},{"id":"el503ku9","type":"debit","refId":"0mp4kotp","detail":"Extra Court - 22nd July","amount":270,"count":0,"date":"2026-07-22"},{"id":"xtn2v27u","type":"credit","refId":"n2wqln3u","detail":"","amount":85,"count":1,"date":"2026-07-31"},{"id":"zoa3utme","type":"credit","refId":"drrmjkaf","detail":"","amount":85,"count":1,"date":"2026-07-31"},{"id":"w0guscs0","type":"credit","refId":"298y8flo","detail":"","amount":85,"count":1,"date":"2026-07-31"},{"id":"exy8mlhd","type":"credit","refId":"12inzzrj","detail":"","amount":85,"count":1,"date":"2026-07-31"},{"id":"fcqt9s5x","type":"credit","refId":"8p7vjdwl","detail":"","amount":155,"count":2,"date":"2026-07-31"},{"id":"cgk0uugy","type":"credit","refId":"fxf39hdn","detail":"","amount":85,"count":1,"date":"2026-07-31"},{"id":"bb2fr5t4","type":"credit","refId":"n2wqln3u","detail":"","amount":70,"count":1,"date":"2026-07-30"},{"id":"wf0bg2yy","type":"credit","refId":"fxf39hdn","detail":"","amount":70,"count":1,"date":"2026-07-30"},{"id":"zl93gbd0","type":"credit","refId":"12inzzrj","detail":"","amount":70,"count":1,"date":"2026-07-30"},{"id":"3r7o5qpj","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-07-29"},{"id":"wx7p3dmo","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-07-29"},{"id":"jammgss2","type":"debit","refId":"0mp4kotp","detail":"Extra Court - 31st July","amount":270,"count":0,"date":"2026-07-31"},{"id":"ghu8e15k","type":"credit","refId":"8p7vjdwl","detail":"","amount":80,"count":1,"date":"2026-07-29"},{"id":"b6k2fkff","type":"debit","refId":"hdvsg3eb","detail":"2 Boxes in July","amount":2200,"count":0,"date":"2026-07-01"},{"id":"6r29wos6","type":"credit","refId":"w92c0kjp","detail":"","amount":160,"count":2,"date":"2026-08-03"},{"id":"ymw55uuc","type":"credit","refId":"pi2nseyj","detail":"","amount":85,"count":1,"date":"2026-08-04"},{"id":"dtlb2my1","type":"credit","refId":"v6wm2ne8","detail":"","amount":90,"count":1,"date":"2026-08-04"},{"id":"phiu0ee4","type":"credit","refId":"pcmwkeo8","detail":"","amount":180,"count":2,"date":"2026-08-04"},{"id":"pgek9xlg","type":"credit","refId":"fxf39hdn","detail":"","amount":90,"count":1,"date":"2026-08-04"},{"id":"7evnyjtw","type":"debit","refId":"5p8nflsl","detail":"July - Complete Month","amount":2590,"count":0,"date":"2026-07-31"},{"id":"7eu5s635","type":"credit","refId":"fxf39hdn","detail":"","amount":90,"count":1,"date":"2026-08-05"},{"id":"9mt6itvw","type":"credit","refId":"8p7vjdwl","detail":"","amount":160,"count":2,"date":"2026-08-05"},{"id":"gftfcpd0","type":"credit","refId":"di62turi","detail":"","amount":85,"count":1,"date":"2026-08-05"},{"id":"wevutw3b","type":"credit","refId":"97xffu5m","detail":"","amount":85,"count":1,"date":"2026-08-05"},{"id":"e8zcbqfi","type":"credit","refId":"v6wm2ne8","detail":"","amount":85,"count":1,"date":"2026-08-05"},{"id":"tra56avc","type":"credit","refId":"n2wqln3u","detail":"","amount":85,"count":1,"date":"2026-08-06"},{"id":"lf9jdw0p","type":"credit","refId":"fxf39hdn","detail":"","amount":90,"count":1,"date":"2026-08-06"},{"id":"ic62berd","type":"credit","refId":"pcmwkeo8","detail":"","amount":170,"count":2,"date":"2026-08-06"},{"id":"pke9808w","type":"credit","refId":"dwcg8i87","detail":"","amount":80,"count":1,"date":"2026-08-07"},{"id":"6nc8zg1h","type":"credit","refId":"fxf39hdn","detail":"","amount":70,"count":1,"date":"2026-08-07"},{"id":"pjgmplhg","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-08-07"},{"id":"71t66hza","type":"credit","refId":"pcmwkeo8","detail":"","amount":80,"count":1,"date":"2026-08-11"},{"id":"0zsn1lij","type":"credit","refId":"u3n534p1","detail":"","amount":85,"count":1,"date":"2026-08-11"},{"id":"754orngj","type":"credit","refId":"ry3hdamc","detail":"","amount":85,"count":1,"date":"2026-08-11"},{"id":"b0pjtg8h","type":"credit","refId":"12inzzrj","detail":"","amount":170,"count":2,"date":"2026-08-11"},{"id":"obibtt6q","type":"credit","refId":"dwysdc27","detail":"","amount":100,"count":2,"date":"2026-08-11"},{"id":"1y979q1q","type":"credit","refId":"fxf39hdn","detail":"","amount":70,"count":1,"date":"2026-08-12"},{"id":"qo2bh9s6","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-08-12"},{"id":"bawu4spp","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-08-12"},{"id":"xtjgvs3g","type":"credit","refId":"n2wqln3u","detail":"","amount":80,"count":1,"date":"2026-08-13"},{"id":"auphm06i","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-08-13"},{"id":"7f529wso","type":"credit","refId":"ry3hdamc","detail":"","amount":80,"count":1,"date":"2026-08-13"},{"id":"9my43awu","type":"credit","refId":"exwcm0cq","detail":"","amount":80,"count":1,"date":"2026-08-13"},{"id":"3h0mbj83","type":"credit","refId":"lw2cftid","detail":"","amount":80,"count":1,"date":"2026-08-13"},{"id":"yweusvy9","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-08-13"},{"id":"zll801w7","type":"credit","refId":"n2wqln3u","detail":"","amount":80,"count":1,"date":"2026-08-14"},{"id":"o3nl84ue","type":"credit","refId":"v6wm2ne8","detail":"","amount":85,"count":1,"date":"2026-08-14"},{"id":"y2yxj6og","type":"credit","refId":"fxf39hdn","detail":"","amount":85,"count":1,"date":"2026-08-14"},{"id":"j30rfyi9","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-08-17"},{"id":"9er0ri5e","type":"credit","refId":"dwysdc27","detail":"","amount":80,"count":1,"date":"2026-08-17"},{"id":"ozb6hdp3","type":"credit","refId":"fxf39hdn","detail":"","amount":70,"count":1,"date":"2026-08-20"},{"id":"g9bj6yf0","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-08-20"},{"id":"zgndm8f2","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-08-24"},{"id":"l5yh75ub","type":"credit","refId":"dwysdc27","detail":"","amount":100,"count":1,"date":"2026-08-24"},{"id":"5aan3ycb","type":"credit","refId":"fxf39hdn","detail":"","amount":70,"count":1,"date":"2026-08-25"},{"id":"6aczrx7j","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-08-25"},{"id":"rvu8aawk","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-08-27"},{"id":"3zpbiiwt","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-08-27"},{"id":"1ouwjwsc","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-03"},{"id":"hdyxr3ps","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-03"},{"id":"efnrktpe","type":"credit","refId":"dwysdc27","detail":"","amount":80,"count":1,"date":"2026-09-03"},{"id":"dex4i335","type":"credit","refId":"7w9jhde7","detail":"","amount":80,"count":1,"date":"2026-09-04"},{"id":"18bwt3on","type":"credit","refId":"h3vagjqz","detail":"","amount":80,"count":1,"date":"2026-09-04"},{"id":"fzbz6hky","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-04"},{"id":"cv8et8jl","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-04"},{"id":"wvbj8rcs","type":"credit","refId":"dwysdc27","detail":"","amount":100,"count":1,"date":"2026-09-04"},{"id":"erjxkzfq","type":"credit","refId":"2op410r6","detail":"","amount":85,"count":1,"date":"2026-08-14"},{"id":"qf5qz2ou","type":"credit","refId":"2op410r6","detail":"","amount":80,"count":1,"date":"2026-08-27"},{"id":"0nxte2qo","type":"debit","refId":"b97ghcij","detail":"Aug 2026 (Paid by Althaf)","amount":4500,"count":0,"date":"2026-08-20"},{"id":"8hvvci2w","type":"credit","refId":"dwysdc27","detail":"","amount":80,"count":1,"date":"2026-09-24"},{"id":"24mcatod","type":"credit","refId":"obnsudwn","detail":"","amount":240,"count":3,"date":"2026-09-24"},{"id":"6ifv6x82","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-23"},{"id":"lz5ivp2b","type":"credit","refId":"obnsudwn","detail":"","amount":240,"count":3,"date":"2026-09-23"},{"id":"6f1hz8o5","type":"credit","refId":"xv6fui12","detail":"","amount":65,"count":1,"date":"2026-09-23"},{"id":"xt3rnxi3","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-23"},{"id":"ccq78ogv","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-09-22"},{"id":"ud45ib8n","type":"credit","refId":"cff9hnh4","detail":"","amount":70,"count":1,"date":"2026-09-22"},{"id":"v4ia7qs0","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-09-22"},{"id":"f2cpkc7i","type":"credit","refId":"xv6fui12","detail":"","amount":160,"count":2,"date":"2026-09-22"},{"id":"8l0onora","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-09-21"},{"id":"twxyageh","type":"credit","refId":"cff9hnh4","detail":"","amount":75,"count":1,"date":"2026-09-21"},{"id":"ves017gi","type":"credit","refId":"dwysdc27","detail":"","amount":90,"count":1,"date":"2026-09-18"},{"id":"bvt1sluh","type":"credit","refId":"xv6fui12","detail":"","amount":80,"count":1,"date":"2026-09-18"},{"id":"m4szdq3c","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-18"},{"id":"k8xscjii","type":"credit","refId":"dwysdc27","detail":"","amount":90,"count":1,"date":"2026-09-17"},{"id":"h9bs1rub","type":"credit","refId":"12inzzrj","detail":"","amount":80,"count":1,"date":"2026-09-17"},{"id":"q7o60xn0","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-17"},{"id":"k7newtzb","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-16"},{"id":"nllkfy7e","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-09-16"},{"id":"h8iui93n","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-15"},{"id":"28pgr3zx","type":"credit","refId":"dwysdc27","detail":"","amount":70,"count":1,"date":"2026-09-16"},{"id":"75zjq55r","type":"credit","refId":"cv32bk8i","detail":"","amount":180,"count":2,"date":"2026-09-16"},{"id":"xae75ya8","type":"credit","refId":"x8hezslh","detail":"","amount":70,"count":1,"date":"2026-09-15"},{"id":"apffm8ln","type":"credit","refId":"dwysdc27","detail":"","amount":75,"count":1,"date":"2026-09-11"},{"id":"pmpfnaig","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-11"},{"id":"sv6h69oy","type":"credit","refId":"dwysdc27","detail":"","amount":75,"count":1,"date":"2026-09-10"},{"id":"lyf3csif","type":"credit","refId":"lw2cftid","detail":"","amount":80,"count":1,"date":"2026-09-10"},{"id":"7maex71s","type":"credit","refId":"obnsudwn","detail":"","amount":225,"count":3,"date":"2026-09-10"},{"id":"zugw7cv9","type":"credit","refId":"ry3hdamc","detail":"","amount":75,"count":1,"date":"2026-09-10"},{"id":"pquf6jb8","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-09"},{"id":"ny10up9f","type":"credit","refId":"12inzzrj","detail":"","amount":180,"count":2,"date":"2026-09-09"},{"id":"et7folcx","type":"credit","refId":"obnsudwn","detail":"","amount":80,"count":1,"date":"2026-09-09"},{"id":"xjkhrciy","type":"credit","refId":"r3t7628r","detail":"","amount":80,"count":1,"date":"2026-09-09"},{"id":"6kphu91g","type":"credit","refId":"fxf39hdn","detail":"","amount":160,"count":2,"date":"2026-09-09"},{"id":"4tynnoaw","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-08"},{"id":"0eylp28e","type":"credit","refId":"lw2cftid","detail":"","amount":80,"count":1,"date":"2026-09-08"},{"id":"zdkh4g3s","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-09-07"},{"id":"skt0qawb","type":"debit","refId":"b97ghcij","detail":"Sivaram Paid","amount":5000,"count":0,"date":"2026-09-04"},{"id":"ze1q5gru","type":"credit","refId":"5zta92uj","detail":"","amount":80,"count":1,"date":"2026-09-30"},{"id":"rmqdr05c","type":"credit","refId":"cv32bk8i","detail":"","amount":160,"count":2,"date":"2026-09-30"},{"id":"47je8its","type":"credit","refId":"dwysdc27","detail":"","amount":75,"count":1,"date":"2026-09-30"},{"id":"ktm5x8dc","type":"credit","refId":"v6wm2ne8","detail":"","amount":80,"count":1,"date":"2026-09-30"},{"id":"gthd9fr3","type":"credit","refId":"uozcmobe","detail":"","amount":80,"count":1,"date":"2026-09-30"},{"id":"tjzkb0zb","type":"credit","refId":"fxf39hdn","detail":"","amount":80,"count":1,"date":"2026-09-30"},{"id":"eme7ydlb","type":"credit","refId":"v6wm2ne8","detail":"","amount":85,"count":1,"date":"2026-09-29"},{"id":"f7k4mn5n","type":"credit","refId":"50xo1431","detail":"","amount":85,"count":1,"date":"2026-09-29"},{"id":"j920s9l2","type":"credit","refId":"cv32bk8i","detail":"","amount":170,"count":1,"date":"2026-09-29"},{"id":"ysuik1u6","type":"credit","refId":"w92c0kjp","detail":"","amount":70,"count":1,"date":"2026-09-29"},{"id":"t4hpw1cj","type":"credit","refId":"v6wm2ne8","detail":"","amount":70,"count":1,"date":"2026-09-28"},{"id":"kjs1hdsk","type":"credit","refId":"cv32bk8i","detail":"","amount":70,"count":1,"date":"2026-09-28"},{"id":"4r0qqgi4","type":"credit","refId":"v6wm2ne8","detail":"","amount":85,"count":1,"date":"2026-09-25"},{"id":"71jf44en","type":"credit","refId":"5zta92uj","detail":"","amount":240,"count":3,"date":"2026-09-25"},{"id":"tzxvodz6","type":"credit","refId":"50xo1431","detail":"","amount":80,"count":1,"date":"2026-09-25"},{"id":"6lfpibue","type":"credit","refId":"fxf39hdn","detail":"","amount":160,"count":1,"date":"2026-09-25"},{"id":"v5pda49r","type":"debit","refId":"hdvsg3eb","detail":"2 * 1130 (Paid by Shiva)","amount":2260,"count":0,"date":"2026-09-01"},{"id":"z1x6bs67","type":"debit","refId":"0mp4kotp","detail":"12 * 230 (Yet to be Paid)","amount":2760,"count":0,"date":"2026-09-30"}]};
+
 function loadState() {
+  let hadData = false;
   try {
     const raw = localStorage.getItem(STORE_KEY);
-    if (raw) state = JSON.parse(raw);
+    if (raw) { state = JSON.parse(raw); hadData = true; }
   } catch (e) { console.error(e); }
-  if (!state.categories || state.categories.length === 0) {
-    state.categories = [
-      { id: uid(), name: 'Court Booking' },
-      { id: uid(), name: 'Shuttle Purchase' },
-      { id: uid(), name: 'Additional Court Booking' }
-    ];
-  }
-  if (!state.players) state.players = [];
-  if (!state.txns)    state.txns    = [];
+  if (!state.players)    state.players    = [];
+  if (!state.categories) state.categories = [];
+  if (!state.txns)       state.txns       = [];
 
-  // First visit on this phone: seed with the existing ledger data (unchanged)
-  if (state.txns.length === 0 && state.players.length === 0) {
-    autoSeedInitialData();
+  if (!hadData || (state.txns.length === 0 && state.players.length === 0)) {
+    // First open on this phone: load the complete ledger exactly as backed up
+    state = JSON.parse(JSON.stringify(SEED_DATA));
+    setMeta({ seedVersion: SEED_VERSION });
+    saveState();
+  } else if (getMeta().seedVersion !== SEED_VERSION) {
+    // Phone already has data: merge the complete ledger in once, without duplicates
+    mergeLedger(SEED_DATA);
+    setMeta({ seedVersion: SEED_VERSION });
+    saveState();
+  }
+  if (state.categories.length === 0) {
+    state.categories = ['Court Booking','Shuttle Purchase','Additional Court Booking'].map(name => ({ id: uid(), name }));
   }
 }
 
-function autoSeedInitialData() {
-  // Player data: [name, aprAmount, aprCount, junAmount, junCount]
-  const playerData = [
-    ['Saju Narendran Vetiyatil',       420,  4,  930, 11],
-    ['Rajeev Ranjan',                    0,  0,  590,  7],
-    ['Sivaram Choppalli',                0,  0,  390,  4],
-    ['Surendhar R G',                    0,  0,  600,  4],
-    ['Kottapalli Praveen Kumar Reddy',  175, 3,  160,  2],
-    ['Rajan Kumar',                      0,  0,  190,  2],
-    ['Pritam Dey',                       0,  0,  160,  2],
-    ['Ajith',                          150,  2,    0,  0],
-    ['Navdeep Thakur',                 100,  1,    0,  0],
-    ['Tanmaya Kumar Mohanty',            0,  0,   90,  1],
-    ['Vatsayan Vijay',                   0,  0,   85,  1],
-    ['Nikhil Reddy',                     0,  0,  160,  2],
-    ['Raja Shekar',                      0,  0,  160,  1],
-  ];
-  playerData.forEach(([name, aprAmt, aprCnt, junAmt, junCnt]) => {
-    const p = { id: uid(), name };
-    state.players.push(p);
-    if (aprAmt > 0) state.txns.push({ id: uid(), type: 'credit', refId: p.id, detail: '', amount: aprAmt, count: aprCnt, date: '2026-04-28' });
-    if (junAmt > 0) state.txns.push({ id: uid(), type: 'credit', refId: p.id, detail: '', amount: junAmt, count: junCnt, date: '2026-06-25' });
+// Merge another ledger into the current one. Players/categories match by name;
+// entries match by content (type, name, amount, sessions, date, details), so
+// nothing is added twice and entries only on this phone are kept.
+function mergeLedger(src) {
+  const norm = v => String(v || '').trim().toLowerCase();
+  const mapRefs = (srcList, dstList) => {
+    const map = {};
+    srcList.forEach(x => {
+      let hit = dstList.find(y => norm(y.name) === norm(x.name));
+      if (!hit) {
+        hit = { id: dstList.some(y => y.id === x.id) ? uid() : x.id, name: x.name };
+        dstList.push(hit);
+      }
+      map[x.id] = hit.id;
+    });
+    return map;
+  };
+  const pMap = mapRefs(src.players || [], state.players);
+  const cMap = mapRefs(src.categories || [], state.categories);
+  const key = t => [t.type, t.refId, Number(t.amount), Number(t.count || 0), t.date, norm(t.detail)].join('|');
+  const have = {};
+  state.txns.forEach(t => { const k = key(t); have[k] = (have[k] || 0) + 1; });
+  let added = 0;
+  (src.txns || []).forEach(t => {
+    const refId = t.type === 'credit' ? pMap[t.refId] : cMap[t.refId];
+    if (!refId) return;
+    const nt = { ...t, refId };
+    const k = key(nt);
+    if (have[k] > 0) { have[k]--; return; }
+    if (state.txns.some(x => x.id === nt.id)) nt.id = uid();
+    state.txns.push(nt);
+    added++;
   });
-  const cb = state.categories.find(c => c.name === 'Court Booking');
-  const sh = state.categories.find(c => c.name === 'Shuttle Purchase');
-  const ac = state.categories.find(c => c.name === 'Additional Court Booking');
-  if (cb) state.txns.push({ id: uid(), type: 'debit', refId: cb.id, detail: '6 days × ₹285 / day',    amount: 1710, count: 0, date: '2026-04-28' });
-  if (ac) state.txns.push({ id: uid(), type: 'debit', refId: ac.id, detail: '1 session × 30 mins',    amount: 135,  count: 0, date: '2026-06-15' });
-  if (sh) state.txns.push({ id: uid(), type: 'debit', refId: sh.id, detail: '2 shuttle cocks × ₹250', amount: 500,  count: 0, date: '2026-06-20' });
-  saveState();
+  return added;
 }
 
 function saveState() {
@@ -839,23 +866,50 @@ function stepCount(d) {
 
 const acInput = $('cr-player');
 const acBox = $('cr-ac');
-acInput.addEventListener('input', () => {
+function playerSessions(id) {
+  return state.txns.filter(t => t.type === 'credit' && t.refId === id).reduce((s, t) => s + Number(t.count || 0), 0);
+}
+function showPlayerList() {
   const raw = acInput.value.trim();
   const q = raw.toLowerCase();
-  if (q.length < 2) { acBox.classList.remove('open'); acBox.innerHTML = ''; return; }
-  const matches = state.players.filter(p => p.name.toLowerCase().includes(q)).slice(0, 8);
+  const all = state.players.slice().sort((a, b) => a.name.localeCompare(b.name));
+  let matches;
+  if (!q) {
+    matches = all;
+  } else {
+    // rank: name starts with → any word starts with → contains anywhere
+    const score = p => {
+      const n = p.name.toLowerCase();
+      if (n.startsWith(q)) return 0;
+      if (n.split(/\s+/).some(w => w.startsWith(q))) return 1;
+      return n.includes(q) ? 2 : 9;
+    };
+    matches = all.map(p => [score(p), p]).filter(x => x[0] < 9).sort((a, b) => a[0] - b[0]).map(x => x[1]);
+  }
   const exact = state.players.some(p => p.name.toLowerCase() === q);
-  let html = matches.map(p => `<button type="button" class="ac-item" data-name="${escapeHtml(p.name)}"><span>${highlight(p.name, q)}</span></button>`).join('');
-  if (!exact) html += `<button type="button" class="ac-item" data-name="${escapeHtml(raw)}"><span>New player: <strong>${escapeHtml(raw)}</strong></span><span class="ac-add">+ ADD</span></button>`;
-  acBox.innerHTML = html;
+  let html = matches.map(p => {
+    const s = playerSessions(p.id);
+    return `<button type="button" class="ac-item" data-name="${escapeHtml(p.name)}"><span>${q ? highlight(p.name, q) : escapeHtml(p.name)}</span><span class="ac-meta">${s ? s + ' sess' : ''}</span></button>`;
+  }).join('');
+  if (q.length >= 2 && !exact) html += `<button type="button" class="ac-item" data-name="${escapeHtml(raw)}"><span>New player: <strong>${escapeHtml(raw)}</strong></span><span class="ac-add">+ ADD</span></button>`;
+  if (!html) html = `<div class="ac-empty">No players yet — type a name to add one</div>`;
+  acBox.innerHTML = `<div class="ac-head">${q ? matches.length + ' match' + (matches.length === 1 ? '' : 'es') : 'All players (' + all.length + ')'}</div>` + html;
   acBox.classList.add('open');
+}
+acInput.addEventListener('input', showPlayerList);
+acInput.addEventListener('focus', showPlayerList);
+$('cr-ac-toggle').addEventListener('click', () => {
+  if (acBox.classList.contains('open')) { acBox.classList.remove('open'); return; }
+  showPlayerList();
 });
+// tap on a name (use pointerdown so the keyboard closing doesn't swallow the tap)
+acBox.addEventListener('mousedown', e => e.preventDefault());
 acBox.addEventListener('click', e => {
   const item = e.target.closest('.ac-item');
   if (item) selectPlayer(item.dataset.name);
 });
 document.addEventListener('click', e => {
-  if (!e.target.closest('#cr-player') && !e.target.closest('#cr-ac')) acBox.classList.remove('open');
+  if (!e.target.closest('#cr-player') && !e.target.closest('#cr-ac') && !e.target.closest('#cr-ac-toggle')) acBox.classList.remove('open');
 });
 function selectPlayer(name) {
   acInput.value = name;
@@ -1058,8 +1112,18 @@ function renderDashboard() {
   $('capture-foot').textContent = `Aero Smash Badminton Academy · generated ${fmtDate(todayISO())}`;
 }
 
+let ledgerMonth = 'all';
+$('ledger-month').addEventListener('change', e => { ledgerMonth = e.target.value; renderLedger(); });
 function renderLedger() {
-  let list = [...state.txns];
+  const lm = $('ledger-month');
+  const months = getAllMonthsInData();
+  if (ledgerMonth !== 'all' && !months.includes(ledgerMonth)) ledgerMonth = 'all';
+  lm.innerHTML = '<option value="all">All Months</option>' + months.slice().reverse().map(m => {
+    const n = state.txns.filter(t => (t.date || '').slice(0, 7) === m).length;
+    return `<option value="${m}">${monthLabel(m)} (${n})</option>`;
+  }).join('');
+  lm.value = ledgerMonth;
+  let list = ledgerMonth === 'all' ? [...state.txns] : state.txns.filter(t => (t.date || '').slice(0, 7) === ledgerMonth);
   if (ledgerFilter !== 'all') list = list.filter(t => t.type === ledgerFilter);
   const q = ledgerQuery.trim().toLowerCase();
   if (q) list = list.filter(t => refName(t).toLowerCase().includes(q) || (t.detail || '').toLowerCase().includes(q));
@@ -1340,37 +1404,10 @@ function resetAll() {
   toast('All data cleared', 'success');
 }
 function seedDemo() {
-  if (state.txns.length > 0 && !confirm('Replace current data with sample data?')) return;
-  state = { players: [], categories: [], txns: [] };
-  ['Court Booking','Shuttle Purchase','Additional Court Booking'].forEach(addCategory);
-  const playerData = [
-    ['Saju Narendran Vetiyatil',       1350, 15],
-    ['Rajeev Ranjan',                   590,  7],
-    ['Sivaram Choppalli',               390,  4],
-    ['Surendhar R G',                   600,  4],
-    ['Kottapalli Praveen Kumar Reddy',  335,  5],
-    ['Rajan Kumar',                     190,  2],
-    ['Pritam Dey',                      160,  2],
-    ['Ajith',                           150,  2],
-    ['Navdeep Thakur',                  100,  1],
-    ['Tanmaya Kumar Mohanty',            90,  1],
-    ['Vatsayan Vijay',                   85,  1],
-    ['Nikhil Reddy',                    160,  2],
-    ['Raja Shekar',                     160,  1],
-  ];
-  playerData.forEach(([name, amt, cnt]) => {
-    const p = addPlayer(name);
-    state.txns.push({ id: uid(), type: 'credit', refId: p.id, detail: '', amount: amt, count: cnt, date: '2026-06-25' });
-  });
-  const cb = state.categories.find(c => c.name === 'Court Booking');
-  const sh = state.categories.find(c => c.name === 'Shuttle Purchase');
-  const ac = state.categories.find(c => c.name === 'Additional Court Booking');
-  state.txns.push({ id: uid(), type: 'debit', refId: cb.id, detail: '6 days × ₹285 / day',    amount: 1710, count: 0, date: '2026-04-28' });
-  state.txns.push({ id: uid(), type: 'debit', refId: ac.id, detail: '1 session × 30 mins',    amount: 135,  count: 0, date: '2026-06-15' });
-  state.txns.push({ id: uid(), type: 'debit', refId: sh.id, detail: '2 shuttle cocks × ₹250', amount: 500,  count: 0, date: '2026-06-20' });
-  saveState();
-  renderAll();
-  toast('Sample data loaded', 'success');
+  if (!confirm('Merge the built-in Apr–Sep 2026 ledger into this phone? Entries already here are kept and nothing is duplicated.')) return;
+  const n = mergeLedger(SEED_DATA);
+  saveState(); renderAll();
+  toast(n ? `${n} missing entries added` : 'Nothing missing — all entries already here', 'success');
 }
 
 /* ================================================================
