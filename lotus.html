@@ -1,0 +1,3716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lotus Parimal">
+<meta name="application-name" content="Lotus Parimal">
+<meta name="theme-color" content="#0f172a">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" id="touch-icon" href="">
+<title>Lotus Parimal Maintenance</title>
+<style>
+/* ==================================================================== */
+/* DESIGN TOKENS                                                        */
+/* ==================================================================== */
+:root {
+  --c-navy: #0f172a;
+  --c-navy-2: #1e3a5f;
+  --c-teal-1: #0f766e;
+  --c-teal-2: #0d9488;
+  --c-teal-3: #14b8a6;
+  --c-teal-soft: #ccfbf1;
+  --c-text: #0f172a;
+  --c-text-2: #475569;
+  --c-text-3: #64748b;
+  --c-text-4: #94a3b8;
+  --c-bg: #eef2f7;
+  --c-bg-soft: #f8fafc;
+  --c-bg-card: #ffffff;
+  --c-border: #e2e8f0;
+  --c-border-2: #cbd5e1;
+  --c-blue: #3b82f6;
+  --c-blue-d: #1e40af;
+  --c-slate: #64748b;
+  --c-slate-d: #334155;
+  --c-indigo: #6366f1;
+  --c-indigo-d: #4338ca;
+  --c-emerald: #10b981;
+  --c-emerald-d: #047857;
+  --c-amber: #f59e0b;
+  --c-amber-d: #b45309;
+  --c-amber-soft: #fef3c7;
+  --c-amber-text: #78350f;
+  --c-red: #ef4444;
+  --c-success-bg: #d1fae5;
+  --c-success-text: #047857;
+
+  --shadow-sm: 0 1px 2px rgba(15,23,42,.04), 0 2px 4px rgba(15,23,42,.04);
+  --shadow-md: 0 1px 2px rgba(15,23,42,.04), 0 6px 12px rgba(15,23,42,.06), 0 12px 24px rgba(15,23,42,.04);
+  --shadow-lg: 0 8px 20px rgba(15,23,42,.08), 0 2px 4px rgba(15,23,42,.06);
+  --shadow-teal: 0 8px 18px rgba(20,184,166,.3), 0 1px 3px rgba(20,184,166,.15);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --gap-xs: 6px;
+  --gap-sm: 10px;
+  --gap-md: 16px;
+  --gap-lg: 24px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ==================================================================== */
+/* TOP NAV                                                              */
+/* ==================================================================== */
+.topnav {
+  background: var(--c-navy);
+  background-image: linear-gradient(135deg, var(--c-navy) 0%, var(--c-navy-2) 60%, #134e4a 100%);
+  color: white;
+  padding: 14px 22px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.topnav-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-mark {
+  width: 34px; height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--c-teal-1) 0%, var(--c-teal-3) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+  color: white;
+  box-shadow: 0 2px 6px rgba(20,184,166,.4);
+}
+.brand-text { line-height: 1.2; }
+.brand-name { font-size: 14px; font-weight: 600; letter-spacing: 0.4px; }
+.brand-sub { font-size: 10px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; }
+
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 4px;
+}
+.nav-tab {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #cbd5e1;
+  border-radius: 7px;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+.nav-tab:hover { color: white; background: rgba(255,255,255,0.06); }
+.nav-tab.active {
+  background: linear-gradient(135deg, var(--c-teal-1), var(--c-teal-3));
+  color: white;
+  box-shadow: 0 2px 6px rgba(20,184,166,.3);
+}
+
+/* ==================================================================== */
+/* MAIN CONTAINER                                                       */
+/* ==================================================================== */
+.app-main {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 24px 22px 40px;
+}
+.page { display: none; animation: fadeIn 0.4s ease; }
+.page.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ==================================================================== */
+/* SHARED COMPONENTS                                                    */
+/* ==================================================================== */
+
+/* Heading bar (colored section header) */
+.heading-bar {
+  border-radius: 11px;
+  padding: 10px 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+.heading-bar::after {
+  content: ''; position: absolute;
+  right: -30px; top: -30px;
+  width: 100px; height: 100px;
+  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 70%);
+  border-radius: 50%;
+}
+.hb-icon {
+  width: 28px; height: 28px;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  position: relative; z-index: 2;
+}
+.hb-text { flex: 1; position: relative; z-index: 2; }
+.hb-title { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+.hb-meta { font-size: 11px; opacity: 0.85; letter-spacing: 0.3px; position: relative; z-index: 2; }
+
+.hb-teal     { background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); }
+.hb-blue     { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
+.hb-slate    { background: linear-gradient(135deg, #334155 0%, #64748b 100%); }
+.hb-indigo   { background: linear-gradient(135deg, #4338ca 0%, #6366f1 100%); }
+.hb-emerald  { background: linear-gradient(135deg, #047857 0%, #10b981 100%); }
+.hb-amber    { background: linear-gradient(135deg, #b45309 0%, #f59e0b 100%); }
+
+/* Card surface */
+.card {
+  background: var(--c-bg-card);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--c-teal-1), var(--c-teal-3));
+  color: white;
+  box-shadow: 0 4px 12px rgba(20,184,166,.3);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(20,184,166,.4); }
+.btn-secondary {
+  background: white;
+  color: var(--c-text);
+  border-color: var(--c-border-2);
+}
+.btn-secondary:hover { background: var(--c-bg-soft); border-color: var(--c-text-3); }
+.btn-ghost {
+  background: transparent;
+  color: var(--c-text-2);
+}
+.btn-ghost:hover { background: var(--c-bg-soft); }
+.btn-danger {
+  background: white;
+  color: var(--c-red);
+  border-color: var(--c-border);
+}
+.btn-danger:hover { background: #fee2e2; border-color: var(--c-red); }
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+.btn-icon {
+  width: 30px; height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  background: white;
+  color: var(--c-text-2);
+}
+.btn-icon:hover { background: var(--c-bg-soft); }
+
+/* Form inputs */
+.field { margin-bottom: 14px; }
+.field-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.field-input,
+.field-select {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  transition: all 0.15s ease;
+  outline: none;
+}
+.field-input:focus,
+.field-select:focus {
+  border-color: var(--c-teal-2);
+  box-shadow: 0 0 0 3px rgba(20,184,166,.12);
+}
+.field-input.muted { color: var(--c-text-3); }
+
+/* Toggle */
+.toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--c-text-2);
+}
+.toggle input { display: none; }
+.toggle-track {
+  width: 32px; height: 18px;
+  background: var(--c-border-2);
+  border-radius: 999px;
+  position: relative;
+  transition: background 0.2s ease;
+}
+.toggle-track::after {
+  content: ''; position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-track { background: var(--c-amber); }
+.toggle input:checked + .toggle-track::after { transform: translateX(14px); }
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(40px);
+  background: var(--c-navy);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  max-width: 90vw;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+#toast.success { background: var(--c-emerald-d); }
+#toast.error { background: #b91c1c; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(15,23,42,0.6);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  animation: scaleIn 0.25s ease;
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--c-text-3);
+}
+.empty-icon {
+  width: 60px; height: 60px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--c-bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+  color: var(--c-text-4);
+}
+.empty-title { font-size: 16px; color: var(--c-text); margin-bottom: 6px; }
+.empty-desc { font-size: 13px; }
+</style>
+</head>
+<body>
+<div id="root">
+  <!-- Top navigation -->
+  <nav class="topnav">
+    <div class="topnav-inner">
+      <div class="brand">
+        <div class="brand-mark">L</div>
+        <div class="brand-text">
+          <div class="brand-name">Lotus Parimal Apartment</div>
+          <div class="brand-sub">Maintenance Tracker</div>
+        </div>
+      </div>
+      <div class="nav-tabs">
+        <button class="nav-tab active" data-page="dashboard">Dashboard</button>
+        <button class="nav-tab" data-page="entry">Entry</button>
+        <button class="nav-tab" data-page="collection">Collection</button>
+        <button class="nav-tab" data-page="history">History</button>
+        <button class="nav-tab" data-page="readings">Readings</button>
+        <button class="nav-tab" data-page="settings">Settings</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="app-main">
+    <div id="page-dashboard" class="page active"></div>
+    <div id="page-entry" class="page"></div>
+    <div id="page-collection" class="page"></div>
+    <div id="page-history" class="page"></div>
+    <div id="page-readings" class="page"></div>
+    <div id="page-settings" class="page"></div>
+  </main>
+
+
+  <nav class="bottomnav"><div class="bottomnav-inner">
+    <button class="bn-btn active" data-page="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/></svg>Home</button>
+    <button class="bn-btn" data-page="entry"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Entry</button>
+    <button class="bn-btn" data-page="collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/><path d="M6.5 15h3"/></svg>Collect</button>
+    <button class="bn-btn" data-page="history"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>History</button>
+    <button class="bn-btn" data-page="readings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></svg>Readings</button>
+    <button class="bn-btn" data-page="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>Settings</button>
+  </div></nav>
+
+  <div id="toast"></div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal" id="modal-content"></div>
+  </div>
+</div>
+
+<!-- External libraries (loaded from CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+<!-- Page-specific styles continue in head; main app code below -->
+<style>
+/* ==================================================================== */
+/* DASHBOARD-SPECIFIC                                                   */
+/* ==================================================================== */
+.dash-hero {
+  background: var(--c-navy);
+  background-image: linear-gradient(135deg, var(--c-navy) 0%, var(--c-navy-2) 60%, #134e4a 100%);
+  border-radius: 18px;
+  padding: 24px 28px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 18px;
+}
+.dash-hero::after {
+  content: ''; position: absolute;
+  right: -100px; top: -100px;
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(20,184,166,.35) 0%, rgba(13,148,136,0) 70%);
+  border-radius: 50%;
+}
+.hero-row {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  position: relative; z-index: 2; gap: 16px;
+}
+.hero-title-block { flex: 1; }
+.hero-society { font-size: 11px; letter-spacing: 4px; text-transform: uppercase; color: #94a3b8; margin-bottom: 6px; }
+.hero-title { font-size: 26px; font-weight: 600; margin-bottom: 2px; }
+.hero-sub { font-size: 13px; color: #cbd5e1; }
+.month-pick {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 9px;
+  padding: 8px 14px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+.month-pick option { background: var(--c-navy); }
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+  position: relative; z-index: 2;
+}
+.hero-stat {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+.hero-stat-label { font-size: 9px; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 4px; font-weight: 500; }
+.hero-stat-value { font-size: 18px; font-weight: 600; color: white; }
+.hero-stat-suffix { font-size: 10px; color: #94a3b8; font-weight: 400; }
+
+.actions-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+/* Per-flat grid */
+.flats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+.flat-card {
+  border-radius: 11px;
+  border: 1px solid var(--c-border);
+  background: white;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  animation: slideIn 0.4s ease backwards;
+}
+.flat-card:nth-child(1) { animation-delay: 0.02s; }
+.flat-card:nth-child(2) { animation-delay: 0.04s; }
+.flat-card:nth-child(3) { animation-delay: 0.06s; }
+.flat-card:nth-child(4) { animation-delay: 0.08s; }
+.flat-card:nth-child(5) { animation-delay: 0.10s; }
+.flat-card:nth-child(6) { animation-delay: 0.12s; }
+.flat-card:nth-child(7) { animation-delay: 0.14s; }
+.flat-card:nth-child(8) { animation-delay: 0.16s; }
+.flat-card:nth-child(9) { animation-delay: 0.18s; }
+.flat-card:nth-child(n+10) { animation-delay: 0.2s; }
+
+.fc-head {
+  background: linear-gradient(135deg, #134e4a 0%, #0d9488 50%, #14b8a6 100%);
+  padding: 8px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+  color: white;
+}
+.fc-flat { font-size: 14px; font-weight: 600; letter-spacing: 0.4px; }
+.fc-total { font-size: 15px; font-weight: 700; }
+.fc-body {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  padding: 8px 12px 10px;
+}
+.fc-stat {
+  display: flex; justify-content: space-between;
+  font-size: 11px; padding: 2px 0;
+}
+.fc-stat-l { color: var(--c-text-3); }
+.fc-stat-v { color: var(--c-text); font-weight: 500; }
+
+/* Three-up section row */
+.three-up {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Expense lines */
+.exp-line {
+  display: flex; justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+  border-bottom: 1px dashed var(--c-border);
+}
+.exp-line:last-child { border-bottom: none; }
+.exp-l { color: var(--c-text-2); }
+.exp-v { color: var(--c-text); font-weight: 500; }
+.exp-total {
+  margin-top: 8px; padding-top: 9px;
+  border-top: 1.5px solid var(--c-text);
+  display: flex; justify-content: space-between;
+  font-size: 13px; font-weight: 600;
+}
+.exp-total-v { color: var(--c-teal-2); }
+
+/* AMC mini cards */
+.amc-mini {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 9px;
+  padding: 9px 12px;
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-sm);
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 7px;
+  position: relative;
+}
+.amc-mini:last-child { margin-bottom: 0; }
+.amc-mini::before {
+  content: ''; position: absolute;
+  top: 0; left: 12px; right: 12px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, var(--c-indigo) 50%, transparent 100%);
+  border-radius: 2px;
+}
+.amc-icon {
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  background: #eef2ff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--c-indigo-d); font-weight: 600;
+}
+.amc-info { flex: 1; }
+.amc-name { font-size: 11px; font-weight: 500; color: var(--c-text-2); line-height: 1.3; }
+.amc-status { font-size: 9px; color: var(--c-text-4); line-height: 1.2; }
+.amc-amt { font-size: 13px; font-weight: 600; color: var(--c-teal-2); }
+.amc-amt.na { color: var(--c-border-2); }
+
+/* Per-flat banner */
+.perflat-banner {
+  background: var(--c-teal-2);
+  background-image: linear-gradient(135deg, var(--c-teal-1), var(--c-teal-3));
+  border-radius: 13px;
+  padding: 14px 22px;
+  color: white;
+  margin-top: 14px;
+  display: flex; justify-content: space-between; align-items: center;
+  box-shadow: var(--shadow-teal);
+}
+.pf-label { font-size: 10px; opacity: 0.85; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 2px; }
+.pf-value { font-size: 24px; font-weight: 600; line-height: 1.1; }
+.pf-formula { font-size: 11px; opacity: 0.85; font-style: italic; line-height: 1.4; text-align: right; }
+
+/* Recon score cards */
+.recon-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.recon-cell {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 11px;
+  padding: 11px 14px;
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-sm);
+}
+.recon-cell.success {
+  background: linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+}
+.rc-label { font-size: 9px; color: var(--c-text-3); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; }
+.rc-value { font-size: 18px; font-weight: 600; margin-top: 3px; }
+.recon-cell.success .rc-label { color: var(--c-emerald-d); }
+.recon-cell.success .rc-value { color: var(--c-emerald-d); }
+
+/* Note bar */
+.note-bar {
+  margin-top: 14px;
+  background: linear-gradient(180deg, #fef9c3 0%, #fef3c7 100%);
+  border-left: 3px solid var(--c-amber);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--c-amber-text);
+}
+
+/* ==================================================================== */
+/* ENTRY-SPECIFIC                                                       */
+/* ==================================================================== */
+.entry-section {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.entry-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-teal-2);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.upload-area {
+  border: 2px dashed var(--c-border-2);
+  border-radius: 12px;
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--c-bg-soft);
+  position: relative;
+}
+.upload-area:hover {
+  border-color: var(--c-teal-2);
+  background: rgba(20,184,166,.04);
+}
+.upload-area.has-image {
+  padding: 0;
+  border: 1px solid var(--c-border);
+  background: white;
+  position: relative;
+  overflow: visible;
+}
+.upload-area img {
+  width: 100%;
+  display: block;
+  max-height: 400px;
+  object-fit: contain;
+}
+.upload-icon { font-size: 32px; color: var(--c-text-4); margin-bottom: 8px; }
+.upload-text { color: var(--c-text-2); font-size: 13px; margin-bottom: 4px; font-weight: 500; }
+.upload-hint { color: var(--c-text-4); font-size: 11px; }
+.upload-clear {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(15,23,42,0.9);
+  color: white;
+  padding: 7px 12px;
+  font-size: 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  border: none;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  z-index: 10;
+  transition: all 0.2s ease;
+}
+.upload-clear:hover {
+  background: rgba(15,23,42,1);
+  transform: scale(1.05);
+}
+
+.readings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.reading-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 9px;
+  background: var(--c-bg-soft);
+  transition: all 0.15s ease;
+}
+.reading-row:hover { border-color: var(--c-border-2); }
+.reading-row.manual {
+  background: var(--c-amber-soft);
+  border-color: var(--c-amber);
+}
+.reading-flat {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--c-text);
+  min-width: 32px;
+}
+.reading-input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 7px;
+  background: white;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: right;
+  outline: none;
+}
+.reading-input:focus { border-color: var(--c-teal-2); }
+.reading-toggle {
+  font-size: 9px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  background: white;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-3);
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+.reading-toggle.on {
+  background: var(--c-amber);
+  color: white;
+  border-color: var(--c-amber);
+}
+.reading-suggested {
+  font-size: 10px;
+  color: white;
+  background: var(--c-blue);
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(59,130,246,0.4);
+}
+.reading-suggested:hover { background: #1d4ed8; transform: scale(1.05); }
+
+.expense-row {
+  display: grid;
+  grid-template-columns: 1fr 140px 30px;
+  gap: 8px;
+  margin-bottom: 6px;
+  align-items: center;
+}
+.expense-row .field-input { padding: 7px 10px; font-size: 13px; }
+
+.add-row-btn {
+  margin-top: 4px;
+  padding: 8px 14px;
+  background: var(--c-bg-soft);
+  border: 1px dashed var(--c-border-2);
+  color: var(--c-text-2);
+  font-size: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+.add-row-btn:hover { border-color: var(--c-teal-2); color: var(--c-teal-2); background: rgba(20,184,166,.06); }
+
+/* ==================================================================== */
+/* HISTORY                                                              */
+/* ==================================================================== */
+.history-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.history-card {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+.history-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--c-teal-2); }
+.history-month { font-size: 13px; color: var(--c-text-3); font-weight: 500; }
+.history-amount { font-size: 22px; font-weight: 600; margin: 4px 0; color: var(--c-teal-2); }
+.history-meta { font-size: 11px; color: var(--c-text-3); }
+
+/* ==================================================================== */
+/* COLLECTION PAGE                                                      */
+/* ==================================================================== */
+.coll-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.coll-stat-card {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+}
+.coll-stat-card.santosh {
+  background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+  border-color: #67e8f9;
+}
+.coll-stat-card.watchman {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border-color: #fcd34d;
+}
+.coll-stat-card.pending {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  border-color: #fca5a5;
+}
+.coll-stat-card.total {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border-color: #6ee7b7;
+}
+.coll-stat-label {
+  font-size: 10px;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.coll-stat-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--c-text);
+  line-height: 1.1;
+}
+.coll-stat-sub {
+  font-size: 11px;
+  color: var(--c-text-3);
+  margin-top: 4px;
+}
+.coll-stat-card.santosh .coll-stat-value { color: #0e7490; }
+.coll-stat-card.watchman .coll-stat-value { color: #92400e; }
+.coll-stat-card.pending .coll-stat-value { color: #b91c1c; }
+.coll-stat-card.total .coll-stat-value { color: #047857; }
+
+.coll-progress-wrap {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+.coll-progress-bar {
+  height: 10px;
+  background: var(--c-bg-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+  display: flex;
+}
+.coll-progress-santosh {
+  background: linear-gradient(90deg, #06b6d4, #0891b2);
+  transition: width 0.4s ease;
+}
+.coll-progress-watchman {
+  background: linear-gradient(90deg, #f59e0b, #d97706);
+  transition: width 0.4s ease;
+}
+.coll-progress-label {
+  font-size: 12px;
+  color: var(--c-text-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.coll-progress-legend {
+  display: flex;
+  gap: 14px;
+  font-size: 11px;
+  margin-top: 8px;
+}
+.coll-legend-dot {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.coll-table-wrap {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.coll-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.coll-table th {
+  background: var(--c-bg-soft);
+  padding: 12px 14px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--c-border);
+}
+.coll-table th.center { text-align: center; }
+.coll-table th.right { text-align: right; }
+.coll-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--c-border);
+  font-size: 14px;
+  vertical-align: middle;
+}
+.coll-table tr:last-child td { border-bottom: none; }
+.coll-table tr.paid {
+  background: linear-gradient(90deg, #f0fdf4 0%, white 100%);
+}
+.coll-table tr.unpaid {
+  background: linear-gradient(90deg, #fffbeb 0%, white 100%);
+}
+.coll-table tr:hover { background: var(--c-bg-soft); }
+.coll-flat {
+  font-weight: 600;
+  color: var(--c-text);
+  font-size: 14px;
+}
+.coll-amount {
+  font-weight: 600;
+  color: var(--c-teal-2);
+  font-size: 15px;
+  text-align: right;
+}
+.coll-check-cell {
+  text-align: center;
+  cursor: pointer;
+}
+.coll-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px; height: 26px;
+  border: 2px solid var(--c-border-2);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+  font-weight: 700;
+  color: transparent;
+  user-select: none;
+}
+.coll-check:hover {
+  border-color: var(--c-teal-2);
+  background: rgba(20,184,166,0.05);
+}
+.coll-check.checked-santosh {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  border-color: #0891b2;
+  color: white;
+  box-shadow: 0 2px 6px rgba(6,182,212,0.35);
+}
+.coll-check.checked-watchman {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-color: #d97706;
+  color: white;
+  box-shadow: 0 2px 6px rgba(245,158,11,0.35);
+}
+.coll-status-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+.coll-status-badge.paid-santosh {
+  background: #cffafe;
+  color: #0e7490;
+}
+.coll-status-badge.paid-watchman {
+  background: #fef3c7;
+  color: #92400e;
+}
+.coll-status-badge.unpaid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.coll-quick-actions {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+  flex-wrap: wrap;
+}
+
+.coll-pending-banner {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1px solid #fcd34d;
+  border-left: 4px solid #d97706;
+  border-radius: 12px;
+  padding: 14px 18px;
+}
+.coll-pending-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+.coll-pending-list {
+  font-size: 13px;
+  color: #78350f;
+  line-height: 1.6;
+}
+.coll-pending-pill {
+  display: inline-block;
+  background: white;
+  border: 1px solid #fcd34d;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin: 2px 4px 2px 0;
+  font-size: 12px;
+  color: #92400e;
+  font-weight: 500;
+}
+.coll-all-paid-banner {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 1px solid #6ee7b7;
+  border-left: 4px solid #047857;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #065f46;
+  font-weight: 500;
+}
+
+/* ==================================================================== */
+/* READINGS GRID PAGE                                                   */
+/* ==================================================================== */
+.readings-table-wrap {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  overflow: auto;
+  max-height: 70vh;
+}
+.readings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.readings-table th, .readings-table td {
+  padding: 7px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--c-border);
+  white-space: nowrap;
+}
+.readings-table th {
+  background: var(--c-bg-soft);
+  font-weight: 600;
+  color: var(--c-text-2);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  position: sticky; top: 0;
+  z-index: 5;
+}
+.readings-table th:first-child, .readings-table td:first-child {
+  text-align: left;
+  position: sticky; left: 0;
+  background: white;
+  z-index: 4;
+  font-weight: 600;
+  color: var(--c-text);
+  border-right: 1px solid var(--c-border);
+}
+.readings-table th:first-child { z-index: 6; background: var(--c-bg-soft); }
+
+/* ==================================================================== */
+/* SETTINGS                                                             */
+/* ==================================================================== */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.settings-card {
+  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.settings-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.list-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px;
+  background: var(--c-bg-soft);
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+/* Mobile responsive */
+@media (max-width: 800px) {
+  .topnav { padding: 12px 16px; }
+  .nav-tabs { display: none; }
+  .nav-tabs.mobile-show { display: flex; flex-wrap: wrap; }
+  .app-main { padding: 16px 14px 32px; }
+  .flats-grid { grid-template-columns: repeat(2, 1fr); }
+  .three-up { grid-template-columns: 1fr; }
+  .recon-grid { grid-template-columns: 1fr; }
+  .hero-stats { grid-template-columns: repeat(2, 1fr); }
+  .readings-grid { grid-template-columns: repeat(2, 1fr); }
+  .history-list { grid-template-columns: 1fr; }
+  .settings-grid { grid-template-columns: 1fr; }
+  .hero-row { flex-direction: column; }
+  .perflat-banner { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .pf-formula { text-align: left; }
+}
+
+/* ==================================================================== */
+/* PHONE (iPhone / Android) LAYER                                       */
+/* ==================================================================== */
+:root {
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --bnav-h: 62px;
+}
+html { -webkit-text-size-adjust: 100%; }
+* { -webkit-tap-highlight-color: transparent; }
+body { overscroll-behavior-y: none; }
+.topnav { padding-top: calc(14px + var(--safe-t)); }
+
+/* Bottom navigation (phones) */
+.bottomnav {
+  display: none;
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
+  background: rgba(255,255,255,0.97);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--c-border);
+  padding-bottom: var(--safe-b);
+}
+.bottomnav-inner { display: grid; grid-template-columns: repeat(6, 1fr); height: var(--bnav-h); }
+.bn-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  font-size: 10px; font-weight: 600; color: var(--c-text-3); letter-spacing: .2px;
+}
+.bn-btn svg { width: 22px; height: 22px; }
+.bn-btn.active { color: var(--c-teal-1); }
+.bn-btn.active svg { stroke-width: 2.4; }
+
+/* Banners (install tip / backup reminder) */
+.m-banner {
+  display: flex; gap: 10px; align-items: flex-start;
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 12px; font-size: 13px;
+}
+.m-banner .mb-icon { font-size: 18px; line-height: 1.2; }
+.m-banner .mb-body { flex: 1; }
+.m-banner .mb-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.m-banner.tip { background: #ecfeff; color: #155e75; border: 1px solid #a5f3fc; }
+.m-banner.warn { background: var(--c-amber-soft); color: var(--c-amber-text); border: 1px solid #fde68a; }
+
+/* Entry helpers (replace inline grids) */
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.entry-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 18px; flex-wrap: wrap; }
+.entry-top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.entry-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.split-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.split-photo {
+  position: sticky; top: 76px; align-self: start; max-height: 80vh; overflow: auto;
+  border: 1px solid var(--c-border); border-radius: 10px; padding: 8px; background: white;
+  -webkit-overflow-scrolling: touch;
+}
+.split-photo img { width: 100%; display: block; }
+.split-photo.zoomed img { width: 220%; max-width: none; }
+.split-inputs { display: flex; flex-direction: column; gap: 5px; }
+.zoom-hint { font-size: 10px; color: var(--c-text-3); margin-top: 6px; text-align: center; }
+
+/* AI reader */
+.ai-box { margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 13px; background: #eff6ff; color: #1e3a8a; border: 1px solid #bfdbfe; }
+.ai-box.ok { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+.ai-box.err { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+.ai-btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 11px 16px; border-radius: 10px;
+  font-weight: 600; font-size: 14px; color: white;
+  background: linear-gradient(135deg, #4338ca, #6366f1); box-shadow: 0 6px 14px rgba(99,102,241,.35);
+}
+.ai-btn:disabled { opacity: .6; }
+.reading-row.ai-flag { border-color: #f59e0b; background: #fffbeb; box-shadow: 0 0 0 2px rgba(245,158,11,.18); }
+.reading-row.ai-ok { border-color: #a7f3d0; background: #f0fdf4; }
+.ai-chip { font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 6px; background: #f59e0b; color: white; white-space: nowrap; }
+.ai-review { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.ai-review th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: var(--c-text-3); padding: 6px 6px; border-bottom: 1px solid var(--c-border); position: sticky; top: 0; background: white; }
+.ai-review td { padding: 7px 6px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+.ai-review td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: ui-monospace, Menlo, monospace; }
+.ai-review tr.flag td { background: #fffbeb; }
+.ai-reason { display: block; font-size: 11px; color: #b45309; margin-top: 2px; }
+.ai-review-wrap { max-height: 52vh; overflow: auto; border: 1px solid var(--c-border); border-radius: 10px; -webkit-overflow-scrolling: touch; }
+.key-steps { margin: 6px 0 12px 18px; font-size: 12.5px; color: var(--c-text-2); }
+.key-steps li { margin-bottom: 4px; }
+.kv-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13px; border-bottom: 1px solid #f1f5f9; }
+.kv-row:last-child { border-bottom: none; }
+.kv-row span:first-child { color: var(--c-text-2); }
+.kv-row span:last-child { font-weight: 600; text-align: right; }
+.ok-t { color: var(--c-emerald-d); } .warn-t { color: var(--c-amber-d); }
+
+/* Image share sheet */
+.img-preview { width: 100%; border-radius: 10px; border: 1px solid var(--c-border); display: block; margin-bottom: 10px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 14px; }
+
+/* Welcome (first run) */
+.welcome { text-align: center; padding: 28px 18px; }
+.welcome .empty-icon { background: var(--c-teal-soft); color: var(--c-teal-1); }
+.welcome-actions { display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 18px auto 0; }
+
+@media (max-width: 820px) {
+  .nav-tabs { display: none !important; }
+  .bottomnav { display: block; }
+  .topnav { padding: calc(10px + var(--safe-t)) 16px 10px; }
+  .brand-name { font-size: 13px; }
+  .app-main { padding: 14px 14px calc(var(--bnav-h) + var(--safe-b) + 24px); }
+
+  /* iOS: 16px inputs stop the auto-zoom when typing */
+  input, select, textarea, .field-input, .field-select, .expense-row .field-input { font-size: 16px !important; }
+  .btn { min-height: 42px; }
+  .btn-small { min-height: 38px; padding: 8px 12px; }
+  .btn-icon { width: 38px; height: 38px; }
+
+  .dash-hero { padding: 18px 16px; border-radius: 16px; }
+  .hero-title { font-size: 21px; }
+  .month-pick { width: 100%; padding: 10px 14px; }
+  .actions-row .btn { flex: 1 1 calc(50% - 8px); }
+  .actions-row .btn-primary { flex-basis: 100%; }
+  .heading-bar { flex-wrap: wrap; row-gap: 2px; }
+  .hb-meta { width: 100%; padding-left: 40px; }
+  .card { padding: 14px 14px; }
+
+  .coll-summary-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .coll-table th, .coll-table td { padding: 10px 8px !important; }
+  .coll-table th:nth-child(5), .coll-table td:nth-child(5) { display: none; }
+  .coll-table th { font-size: 10px; }
+  .coll-check { width: 34px !important; height: 34px !important; }
+  .coll-quick-actions { width: 100%; display: flex; gap: 6px; flex-wrap: wrap; }
+  #coll-month-picker { width: 100% !important; }
+
+  .entry-section { padding: 14px 14px; border-radius: 12px; }
+  .entry-section-title { flex-wrap: wrap; gap: 8px; }
+  .entry-top { padding: 12px 14px; }
+  .entry-top-actions { width: 100%; }
+  .entry-top-actions select { flex: 1 1 100%; }
+  .entry-top-actions .btn { flex: 1; }
+  .grid-3, .grid-2 { grid-template-columns: 1fr; gap: 10px; }
+  .readings-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .reading-row { padding: 6px 8px; gap: 6px; }
+  .reading-input { min-width: 0; width: 100%; }
+  .expense-row { grid-template-columns: 1fr 104px 38px; }
+  .entry-actions { position: sticky; bottom: calc(var(--bnav-h) + var(--safe-b) + 8px); background: rgba(238,242,247,.94); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); padding: 10px; border-radius: 14px; margin: 16px -4px 0; z-index: 20; }
+  .entry-actions .btn { flex: 1; }
+
+  /* Split view on phones: photo pinned on top, inputs scroll below */
+  .split-wrap { grid-template-columns: 1fr; gap: 10px; }
+  .split-photo { position: sticky; top: calc(56px + var(--safe-t)); max-height: 38vh; z-index: 10; box-shadow: var(--shadow-md); }
+  .split-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+  .upload-area { padding: 22px 14px; }
+  .upload-area img { max-height: 230px; }
+  .entry-actions .btn { font-size: 13px; padding: 8px 10px; min-height: 44px; }
+  .readings-table-wrap { max-height: 65vh; -webkit-overflow-scrolling: touch; }
+  .readings-table th:first-child, .readings-table td:first-child { position: sticky; left: 0; background: white; z-index: 1; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .modal { border-radius: 18px 18px 0 0; max-height: 92vh; padding: 20px 16px calc(18px + var(--safe-b)); max-width: 100%; }
+  #toast { bottom: calc(var(--bnav-h) + var(--safe-b) + 14px); }
+  .history-card:hover, .btn-primary:hover { transform: none; }
+}
+
+</style>
+
+<script>
+/* ==================================================================== */
+/* APP STATE & SEED DATA                                                */
+/* ==================================================================== */
+const FLATS = ['G01','G02','G03','G04','G05','G06','101','102','103','104','105','106','201','202','203','204','205','206','301','302','303','304','305','306','401','402','403'];
+const FLAT_COUNT = FLATS.length;
+const STORAGE_KEY = 'lotus_parimal_v1';
+
+/* Data is NOT built into this file (it is hosted publicly). Restore your backup once on each phone. */
+const SEED_DATA = { readings: {}, monthly: {} };
+
+/* Default common expenses (pre-populated for new months) */
+const DEFAULT_COMMON_EXPENSES = [
+  { name: 'Watchman Salary', amount: 11000 },
+  { name: 'Electricity Bill (previous month)', amount: 7186 },
+  { name: 'Dustbin · ₹100/flat', amount: 2400 },
+  { name: 'Buffer', amount: 0 }
+];
+
+/* Pre-loaded standard Indian apartment expense suggestions for the "Add" picker */
+const SUGGESTED_EXPENSES = [
+  'Diesel for generator', 'Plumber visit', 'Electrician visit',
+  'Common tap repair', 'Sump motor repair', 'Sump motor cable repair',
+  'Bulb / tube replacement', 'Cleaning items', 'Pest control',
+  'Water tank cleaning', 'Painting touch-ups', 'Minor civil work',
+  'Lift breakdown repair', 'CCTV repair', 'Intercom repair',
+  'Gardening', 'Fire extinguisher refill'
+];
+
+/* ==================================================================== */
+/* GLOBAL APP STATE                                                     */
+/* ==================================================================== */
+const state = {
+  config: {
+    society_name: 'Lotus Parimal Apartment',
+    flats: FLATS.slice(),
+    flat_count: FLAT_COUNT,
+    tanker_rate: 700,
+    pump_electricity_default: 2000
+  },
+  pending_dues: [
+    { flat: '305', amount: 4496, note: 'Oct 2022 sheet payment pending' }
+  ],
+  readings: {},     // { 'YYYY-MM': { flatId: rawReading, ... } }
+  manual_flags: {}, // { 'YYYY-MM': ['103', ...] }
+  watchman_images: {}, // { 'YYYY-MM': dataURL }
+  monthly: {},      // { 'YYYY-MM': MonthlyData }
+  payments: {},     // { 'YYYY-MM': { flatId: 'santosh' | 'watchman' | null } }
+  ui: {
+    current_page: 'dashboard',
+    selected_month: null
+  }
+};
+
+/* MonthlyData structure:
+   {
+     water: { tankers_count, tanker_rate, pump_electricity },
+     common_expenses: [{name, amount}],
+     annual_maintenance: { lift, generator },  // null or amount
+     reconciliation: {
+       prev_month: 'YYYY-MM',
+       monthly_collection,
+       balance_from_last,
+       prev_expense_base,
+       extra_expenses: [{name, amount}]
+     }
+   }
+*/
+
+/* ==================================================================== */
+/* HELPERS                                                              */
+/* ==================================================================== */
+function fmtINR(n, opts = {}) {
+  if (n == null || isNaN(n)) return opts.dash ? '—' : '₹0';
+  const num = Math.round(Number(n));
+  const s = String(Math.abs(num));
+  let last3 = s.slice(-3);
+  let rest = s.slice(0, -3);
+  let parts = [];
+  while (rest.length > 2) {
+    parts.unshift(rest.slice(-2));
+    rest = rest.slice(0, -2);
+  }
+  if (rest) parts.unshift(rest);
+  const formatted = (parts.length ? parts.join(',') + ',' : '') + last3;
+  return (num < 0 ? '-' : '') + (opts.noSym ? formatted : '₹' + formatted);
+}
+function fmtNum(n) {
+  if (n == null || isNaN(n)) return '0';
+  return fmtINR(n, { noSym: true });
+}
+function ymToLabel(ym) {
+  if (!ym) return '';
+  const [y, m] = ym.split('-').map(Number);
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1] + ' ' + y;
+}
+function ymToShort(ym) {
+  if (!ym) return '';
+  const [y, m] = ym.split('-').map(Number);
+  return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m-1] + " '" + String(y).slice(-2);
+}
+function prevMonth(ym) {
+  if (!ym) return null;
+  let [y, m] = ym.split('-').map(Number);
+  m--; if (m < 1) { m = 12; y--; }
+  return `${y}-${String(m).padStart(2,'0')}`;
+}
+function nextMonth(ym) {
+  let [y, m] = ym.split('-').map(Number);
+  m++; if (m > 12) { m = 1; y++; }
+  return `${y}-${String(m).padStart(2,'0')}`;
+}
+function todayYM() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+}
+function roundTo10(n) { return Math.round(n / 10) * 10; }
+
+/* Toast */
+let toastTimer;
+function toast(msg, kind = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + kind;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.className = '', 2800);
+}
+
+/* Modal */
+function showModal(html) {
+  document.getElementById('modal-content').innerHTML = html;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+document.addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+
+/* ==================================================================== */
+/* STORAGE                                                              */
+/* ==================================================================== */
+function saveState() {
+  try {
+    const toSave = {
+      config: state.config,
+      pending_dues: state.pending_dues,
+      readings: state.readings,
+      manual_flags: state.manual_flags,
+      monthly: state.monthly,
+      payments: state.payments
+    };
+    // Photos are stored separately in IndexedDB (localStorage is too small for them)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    setMeta({ lastChange: Date.now() });
+  } catch (e) {
+    toast('Storage error: ' + e.message, 'error');
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      Object.assign(state, data);
+      // Backward-compatibility: ensure payments object exists
+      if (!state.payments) state.payments = {};
+      if (!state.watchman_images) state.watchman_images = {};
+      if (!state.manual_flags) state.manual_flags = {};
+      if (!state.pending_dues) state.pending_dues = [];
+      // Old format kept photos inside localStorage → move them to IndexedDB once
+      if (data.watchman_images && Object.keys(data.watchman_images).length) state.__migrateImages = true;
+      return true;
+    }
+  } catch (e) { console.error(e); }
+  return false;
+}
+
+/* Initialize state with seed if first run */
+function initState() {
+  if (!loadState()) {
+    // Seed with extracted Excel data
+    state.readings = SEED_DATA.readings || {};
+
+    // Build monthly entries from seed
+    const seedMonthly = SEED_DATA.monthly || {};
+    Object.keys(seedMonthly).forEach(ym => {
+      const s = seedMonthly[ym];
+      const tankers_total = s.tankers_total || 0;
+      const tanker_rate = state.config.tanker_rate;
+      const tankers_count = tanker_rate ? Math.round(tankers_total / tanker_rate) : 0;
+
+      state.monthly[ym] = {
+        water: {
+          tankers_count: tankers_count,
+          tanker_rate: tanker_rate,
+          pump_electricity: s.pump_elec || 0
+        },
+        common_expenses: [
+          { name: 'Watchman Salary', amount: s.watchman || 0 },
+          { name: 'Electricity Bill (previous month)', amount: s.electricity || 0 },
+          { name: 'Dustbin · ₹100/flat', amount: s.dustbin || 0 },
+          { name: 'Buffer', amount: s.buffer || 0 }
+        ],
+        annual_maintenance: { lift: null, generator: null },
+        reconciliation: {
+          prev_month: prevMonth(ym),
+          monthly_collection: s.mo_collection || 0,
+          balance_from_last: s.bal_from_last || 0,
+          prev_expense_base: s.prev_exp_base || 0,
+          extra_expenses: s.extra_expenses || []
+        }
+      };
+    });
+
+    if (Object.keys(state.monthly).length) saveState();
+    console.log('Initialized with seed:',
+      Object.keys(state.readings).length, 'months of readings,',
+      Object.keys(state.monthly).length, 'monthly summaries');
+  }
+
+  // Set selected month to most recent
+  const months = Object.keys(state.monthly).sort();
+  state.ui.selected_month = months[months.length-1] || todayYM();
+}
+
+/* ==================================================================== */
+/* CALCULATIONS                                                         */
+/* ==================================================================== */
+/**
+ * Calculate everything for a given month from raw inputs.
+ * @returns {object} Full calculated breakdown for display.
+ */
+function calculateMonth(ym) {
+  const monthData = state.monthly[ym];
+  const readings = state.readings[ym] || {};
+  const prevYm = prevMonth(ym);
+  const prevReadings = state.readings[prevYm] || {};
+
+  if (!monthData) {
+    return null;
+  }
+
+  // 1. Per-flat usage (in litres). Reading × 10 = litres. Usage = current - previous.
+  const usage = {};
+  let totalUsage = 0;
+  FLATS.forEach(flat => {
+    const cur = readings[flat];
+    const prev = prevReadings[flat];
+    let u = 0;
+    if (cur != null && prev != null) {
+      u = (cur - prev) * 10;
+    } else if (cur != null && prev == null) {
+      // First month - we don't know usage, set 0
+      u = 0;
+    }
+    if (u < 0) u = 0;  // negative usage doesn't make sense; cap at 0
+    usage[flat] = u;
+    totalUsage += u;
+  });
+
+  // 2. Water charges
+  const w = monthData.water;
+  const tankersTotal = (w.tankers_count || 0) * (w.tanker_rate || state.config.tanker_rate);
+  const totalWaterBill = tankersTotal + (w.pump_electricity || 0);
+
+  // 3. Per-litre price (rounded to 2 decimal for display, but use full precision for calc)
+  const perLitrePrice = totalUsage > 0 ? totalWaterBill / totalUsage : 0;
+  const perLitreDisplay = Math.round(perLitrePrice * 100) / 100;
+
+  // 4. Per-flat water bill (round up)
+  const flatWaterBills = {};
+  let totalFlatWaterBills = 0;
+  FLATS.forEach(flat => {
+    const billRaw = usage[flat] * perLitrePrice;
+    const bill = Math.ceil(billRaw);
+    flatWaterBills[flat] = bill;
+    totalFlatWaterBills += bill;
+  });
+
+  // 5. Common expenses total + annual maintenance
+  const commonExpensesTotal = (monthData.common_expenses || []).reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const annualLift = monthData.annual_maintenance?.lift || 0;
+  const annualGenerator = monthData.annual_maintenance?.generator || 0;
+  const annualTotal = annualLift + annualGenerator;
+
+  // 6. Per-flat common (rounded). NOTE: Annual maintenance is NOT included in
+  // per-flat common — those are special one-off contributions handled separately.
+  const perFlatCommon = Math.round(commonExpensesTotal / FLAT_COUNT);
+
+  // 7. Per-flat total (water bill + common, rounded to nearest 10)
+  const flatTotals = {};
+  let grandTotalCollection = 0;
+  FLATS.forEach(flat => {
+    const total = roundTo10(flatWaterBills[flat] + perFlatCommon);
+    flatTotals[flat] = total;
+    grandTotalCollection += total;
+  });
+
+  // 8. Reconciliation (previous month)
+  const r = monthData.reconciliation || {};
+  const totalCollection = (r.monthly_collection || 0) + (r.balance_from_last || 0);
+  const extraExpensesTotal = (r.extra_expenses || []).reduce((s, e) => s + (Number(e.amount) || 0), 0);
+  const totalExpenditure = (r.prev_expense_base || 0) + extraExpensesTotal;
+  const carriedForward = totalCollection - totalExpenditure;
+
+  return {
+    ym,
+    label: ymToLabel(ym),
+    usage, totalUsage,
+    flatWaterBills, totalFlatWaterBills,
+    flatTotals, grandTotalCollection,
+    perLitrePrice, perLitreDisplay,
+    totalWaterBill, tankersTotal,
+    commonExpensesTotal, perFlatCommon,
+    annualLift, annualGenerator, annualTotal,
+    reconciliation: {
+      prev_month: r.prev_month,
+      monthly_collection: r.monthly_collection || 0,
+      balance_from_last: r.balance_from_last || 0,
+      total_collection: totalCollection,
+      prev_expense_base: r.prev_expense_base || 0,
+      extra_expenses: r.extra_expenses || [],
+      extra_expenses_total: extraExpensesTotal,
+      total_expenditure: totalExpenditure,
+      carried_forward: carriedForward
+    }
+  };
+}
+
+/* Get list of all months that have monthly data, sorted newest-first */
+function listMonths() {
+  return Object.keys(state.monthly).sort().reverse();
+}
+</script>
+
+<script>
+/* ==================================================================== */
+/* DASHBOARD PAGE                                                       */
+/* ==================================================================== */
+function renderDashboard() {
+  const months = listMonths();
+  const ym = state.ui.selected_month || months[0] || todayYM();
+  const calc = calculateMonth(ym);
+  const root = document.getElementById('page-dashboard');
+
+  if (!calc) {
+    root.innerHTML = bannersHTML() + `
+      <div class="welcome">
+        <div class="empty-icon">🏢</div>
+        <div class="empty-title">Welcome to ${state.config.society_name}</div>
+        <div class="empty-desc">${hasAnyData() ? 'Pick a month or start a new one.' : 'Load your backup file once to bring all your months, readings and payments onto this phone.'}</div>
+        <div class="welcome-actions">
+          <button class="btn btn-primary" onclick="uploadBackup()">⬆ Restore from backup file</button>
+          <button class="btn btn-secondary" onclick="startNewMonth()">➕ Start a new month</button>
+        </div>
+        <input type="file" id="backup-file" accept=".json,application/json,text/plain" style="display:none;" onchange="handleBackupFile(event)">
+      </div>`;
+    return;
+  }
+
+  // Build month options
+  const monthOpts = months.map(m =>
+    `<option value="${m}" ${m === ym ? 'selected' : ''}>${ymToLabel(m)}</option>`
+  ).join('');
+
+  // Pending dues note
+  const pendingNote = state.pending_dues.length
+    ? state.pending_dues.map(d =>
+        `Flat ${d.flat} has ${fmtINR(d.amount)} pending (${d.note})`
+      ).join(' · ')
+    : '';
+
+  root.innerHTML = bannersHTML() + `
+    <div id="summary-printable">
+    <!-- HERO -->
+    <div class="dash-hero">
+      <div class="hero-row">
+        <div class="hero-title-block">
+          <div class="hero-society">${state.config.society_name}</div>
+          <div class="hero-title">Maintenance · ${calc.label}</div>
+          <div class="hero-sub">Monthly statement · ${FLAT_COUNT} flats</div>
+        </div>
+        <select class="month-pick" id="month-picker">${monthOpts}</select>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-label">Per-litre price</div>
+          <div class="hero-stat-value">₹${calc.perLitreDisplay}</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Water used</div>
+          <div class="hero-stat-value">${fmtNum(calc.totalUsage)}<span class="hero-stat-suffix"> L</span></div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Per-flat (common)</div>
+          <div class="hero-stat-value">${fmtINR(calc.perFlatCommon)}</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">To collect</div>
+          <div class="hero-stat-value">${fmtINR(calc.grandTotalCollection)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions-row" data-no-print>
+      <button class="btn btn-primary" onclick="downloadSummaryPNG()">📤 Share summary image (WhatsApp)</button>
+      <button class="btn btn-secondary" onclick="navigate('entry')">✏️ Edit this month</button>
+      <button class="btn btn-secondary" onclick="startNewMonth()">➕ Start new month</button>
+      <button class="btn btn-ghost" onclick="exportExcel()">📊 Export Excel</button>
+    </div>
+
+    <!-- PER-FLAT BREAKDOWN -->
+    <div class="heading-bar hb-teal">
+      <div class="hb-icon">₹</div>
+      <div class="hb-text"><div class="hb-title">Payable by flat</div></div>
+      <div class="hb-meta">${FLAT_COUNT} flats · ${fmtINR(calc.grandTotalCollection)} to collect</div>
+    </div>
+    <div class="flats-grid">
+      ${FLATS.map(f => `
+        <div class="flat-card">
+          <div class="fc-head">
+            <div class="fc-flat">${f}</div>
+            <div class="fc-total">${fmtINR(calc.flatTotals[f])}</div>
+          </div>
+          <div class="fc-body">
+            <div class="fc-stat"><span class="fc-stat-l">Common</span><span class="fc-stat-v">${fmtINR(calc.perFlatCommon)}</span></div>
+            <div class="fc-stat"><span class="fc-stat-l">Water Used</span><span class="fc-stat-v">${fmtNum(calc.usage[f])} L</span></div>
+            <div class="fc-stat"><span class="fc-stat-l">Water Bill</span><span class="fc-stat-v">${fmtINR(calc.flatWaterBills[f])}</span></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- 3 SIDE-BY-SIDE -->
+    <div class="three-up">
+
+      <div>
+        <div class="heading-bar hb-blue">
+          <div class="hb-icon">~</div>
+          <div class="hb-text"><div class="hb-title">Water charges</div></div>
+          <div class="hb-meta">${state.monthly[ym].water.tankers_count} tankers</div>
+        </div>
+        <div class="card">
+          <div class="exp-line"><span class="exp-l">Tankers · ${state.monthly[ym].water.tankers_count} × ₹${state.monthly[ym].water.tanker_rate}</span><span class="exp-v">${fmtINR(calc.tankersTotal)}</span></div>
+          <div class="exp-line"><span class="exp-l">Pump electricity</span><span class="exp-v">${fmtINR(state.monthly[ym].water.pump_electricity)}</span></div>
+          <div class="exp-total"><span>Total</span><span class="exp-total-v">${fmtINR(calc.totalWaterBill)}</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="heading-bar hb-slate">
+          <div class="hb-icon">⌂</div>
+          <div class="hb-text"><div class="hb-title">Common expenses</div></div>
+          <div class="hb-meta">${fmtINR(calc.perFlatCommon)}/flat</div>
+        </div>
+        <div class="card">
+          ${state.monthly[ym].common_expenses.map(e => `
+            <div class="exp-line"><span class="exp-l">${e.name}</span><span class="exp-v">${fmtINR(e.amount)}</span></div>
+          `).join('')}
+          <div class="exp-total"><span>Total</span><span class="exp-total-v">${fmtINR(calc.commonExpensesTotal)}</span></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="heading-bar hb-indigo">
+          <div class="hb-icon">+</div>
+          <div class="hb-text"><div class="hb-title">Half-yearly &amp; annual</div></div>
+          <div class="hb-meta">Manual entry</div>
+        </div>
+        <div class="card" style="padding: 12px 14px;">
+          ${renderAMCMini('L', 'Lift Maintenance', state.monthly[ym].annual_maintenance.lift)}
+          ${renderAMCMini('G', 'Generator', state.monthly[ym].annual_maintenance.generator)}
+        </div>
+      </div>
+    </div>
+
+    <!-- PER-FLAT BANNER -->
+    <div class="perflat-banner">
+      <div>
+        <div class="pf-label">Per-flat common maintenance</div>
+        <div class="pf-value">${fmtINR(calc.perFlatCommon)}</div>
+      </div>
+      <div class="pf-formula">${fmtINR(calc.commonExpensesTotal)} ÷ ${FLAT_COUNT} flats<br/>(plus each flat's water bill)</div>
+    </div>
+
+    <!-- RECONCILIATION -->
+    <div style="margin-top: 16px;">
+      <div class="heading-bar hb-emerald">
+        <div class="hb-icon">=</div>
+        <div class="hb-text"><div class="hb-title">${ymToShort(calc.reconciliation.prev_month)} reconciliation</div></div>
+        <div class="hb-meta">Carried ${fmtINR(calc.reconciliation.carried_forward)} to ${ymToShort(ym)}</div>
+      </div>
+      <div class="recon-grid">
+        <div class="recon-cell">
+          <div class="rc-label">Total collection</div>
+          <div class="rc-value">${fmtINR(calc.reconciliation.total_collection)}</div>
+        </div>
+        <div class="recon-cell">
+          <div class="rc-label">Total expenditure</div>
+          <div class="rc-value">${fmtINR(calc.reconciliation.total_expenditure)}</div>
+        </div>
+        <div class="recon-cell ${calc.reconciliation.carried_forward >= 0 ? 'success' : ''}">
+          <div class="rc-label">Carried to ${ymToShort(ym)}</div>
+          <div class="rc-value">${fmtINR(calc.reconciliation.carried_forward)}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXPENSE BREAKDOWN -->
+    <div style="margin-top: 16px;">
+      <div class="heading-bar hb-amber">
+        <div class="hb-icon">$</div>
+        <div class="hb-text"><div class="hb-title">${ymToShort(calc.reconciliation.prev_month)} expense breakdown</div></div>
+        <div class="hb-meta">where the ${fmtINR(calc.reconciliation.total_expenditure)} went</div>
+      </div>
+      <div class="card">
+        <div class="exp-line"><span class="exp-l">Common Expenses</span><span class="exp-v">${fmtINR(calc.reconciliation.prev_expense_base)}</span></div>
+        ${calc.reconciliation.extra_expenses.map(e => `
+          <div class="exp-line"><span class="exp-l">${e.name}</span><span class="exp-v">${fmtINR(e.amount)}</span></div>
+        `).join('')}
+        <div class="exp-total"><span>Total expenditure</span><span class="exp-total-v">${fmtINR(calc.reconciliation.total_expenditure)}</span></div>
+      </div>
+    </div>
+
+    ${pendingNote ? `<div class="note-bar"><strong>Note · </strong>${pendingNote}</div>` : ''}
+    </div>
+  `;
+
+  // Wire month picker
+  document.getElementById('month-picker').addEventListener('change', e => {
+    state.ui.selected_month = e.target.value;
+    renderDashboard();
+  });
+}
+
+function renderAMCMini(letter, name, amount) {
+  const isPaid = amount != null && amount > 0;
+  return `
+    <div class="amc-mini">
+      <div class="amc-icon">${letter}</div>
+      <div class="amc-info">
+        <div class="amc-name">${name}</div>
+        <div class="amc-status">${isPaid ? 'Paid this month' : 'Not paid this month'}</div>
+      </div>
+      <div class="amc-amt ${isPaid ? '' : 'na'}">${isPaid ? fmtINR(amount) : 'NA'}</div>
+    </div>`;
+}
+
+/* ==================================================================== */
+/* HISTORY PAGE                                                         */
+/* ==================================================================== */
+function renderHistory() {
+  const months = listMonths();
+  const root = document.getElementById('page-history');
+
+  if (months.length === 0) {
+    root.innerHTML = `<div class="empty">
+      <div class="empty-icon">📅</div>
+      <div class="empty-title">No history yet</div>
+      <div class="empty-desc">Add your first month to start building history.</div>
+    </div>`;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="heading-bar hb-teal">
+      <div class="hb-icon">📅</div>
+      <div class="hb-text"><div class="hb-title">All months</div></div>
+      <div class="hb-meta">${months.length} months on record</div>
+    </div>
+    <div class="history-list">
+      ${months.map(ym => {
+        const c = calculateMonth(ym);
+        if (!c) return '';
+        return `
+          <div class="history-card" onclick="viewMonth('${ym}')">
+            <div class="history-month">${ymToLabel(ym)}</div>
+            <div class="history-amount">${fmtINR(c.grandTotalCollection)}</div>
+            <div class="history-meta">
+              ${fmtNum(c.totalUsage)} L water · ${fmtINR(c.perFlatCommon)}/flat common
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function viewMonth(ym) {
+  state.ui.selected_month = ym;
+  navigate('dashboard');
+}
+
+/* ==================================================================== */
+/* COLLECTION PAGE — track who paid to Santosh vs Watchman              */
+/* ==================================================================== */
+function renderCollection() {
+  const months = listMonths();
+  const root = document.getElementById('page-collection');
+
+  if (months.length === 0) {
+    root.innerHTML = `<div class="empty">
+      <div class="empty-icon">💰</div>
+      <div class="empty-title">No months to track yet</div>
+      <div class="empty-desc">Add a month first to start tracking payments.</div>
+    </div>`;
+    return;
+  }
+
+  const ym = state.ui.selected_month || months[0];
+  const calc = calculateMonth(ym);
+  if (!calc) {
+    root.innerHTML = `<div class="empty">
+      <div class="empty-title">Cannot calculate amounts for ${ymToLabel(ym)}</div>
+    </div>`;
+    return;
+  }
+
+  // Ensure payment object exists for this month
+  if (!state.payments[ym]) state.payments[ym] = {};
+  const payments = state.payments[ym];
+
+  // Compute totals
+  let santoshTotal = 0;
+  let watchmanTotal = 0;
+  let pendingTotal = 0;
+  let paidFlats = 0;
+  const unpaidFlats = [];
+
+  FLATS.forEach(flat => {
+    const amount = calc.flatTotals[flat] || 0;
+    const paidTo = payments[flat];
+    if (paidTo === 'santosh') { santoshTotal += amount; paidFlats++; }
+    else if (paidTo === 'watchman') { watchmanTotal += amount; paidFlats++; }
+    else { pendingTotal += amount; unpaidFlats.push({ flat, amount }); }
+  });
+
+  const grandTotal = calc.grandTotalCollection;
+  const collectedTotal = santoshTotal + watchmanTotal;
+  const pctCollected = grandTotal > 0 ? Math.round((collectedTotal / grandTotal) * 100) : 0;
+  const pctSantosh = grandTotal > 0 ? (santoshTotal / grandTotal) * 100 : 0;
+  const pctWatchman = grandTotal > 0 ? (watchmanTotal / grandTotal) * 100 : 0;
+
+  // Build month options
+  const monthOpts = months.map(m =>
+    `<option value="${m}" ${m === ym ? 'selected' : ''}>${ymToLabel(m)}</option>`
+  ).join('');
+
+  root.innerHTML = `
+    <!-- Heading -->
+    <div class="heading-bar hb-teal">
+      <div class="hb-icon">₹</div>
+      <div class="hb-text"><div class="hb-title">Payment collection</div></div>
+      <div class="hb-meta">${paidFlats} of ${FLAT_COUNT} flats paid · ${pctCollected}% collected</div>
+    </div>
+
+    <!-- Month picker -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 12px; flex-wrap: wrap;">
+      <select id="coll-month-picker" class="field-select" style="width:auto; padding:8px 12px; max-width:100%;">${monthOpts}</select>
+      <div class="coll-quick-actions" style="margin: 0;">
+        <button class="btn btn-secondary btn-small" onclick="markAllPaid('santosh')">✓ All to Santosh</button>
+        <button class="btn btn-secondary btn-small" onclick="markAllPaid('watchman')">✓ All to Watchman</button>
+        <button class="btn btn-ghost btn-small" onclick="resetCollection()">🔄 Reset month</button>
+      </div>
+    </div>
+
+    <!-- Summary stat cards -->
+    <div class="coll-summary-grid">
+      <div class="coll-stat-card santosh">
+        <div class="coll-stat-label">Paid to Santosh</div>
+        <div class="coll-stat-value">${fmtINR(santoshTotal)}</div>
+        <div class="coll-stat-sub">${countPaidTo(payments, 'santosh')} flats</div>
+      </div>
+      <div class="coll-stat-card watchman">
+        <div class="coll-stat-label">Paid to Watchman</div>
+        <div class="coll-stat-value">${fmtINR(watchmanTotal)}</div>
+        <div class="coll-stat-sub">${countPaidTo(payments, 'watchman')} flats</div>
+      </div>
+      <div class="coll-stat-card total">
+        <div class="coll-stat-label">Total collected</div>
+        <div class="coll-stat-value">${fmtINR(collectedTotal)}</div>
+        <div class="coll-stat-sub">of ${fmtINR(grandTotal)} expected</div>
+      </div>
+      <div class="coll-stat-card pending">
+        <div class="coll-stat-label">Pending</div>
+        <div class="coll-stat-value">${fmtINR(pendingTotal)}</div>
+        <div class="coll-stat-sub">${unpaidFlats.length} flats yet to pay</div>
+      </div>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="coll-progress-wrap">
+      <div class="coll-progress-label">
+        <span><b>${pctCollected}%</b> collected · ${fmtINR(collectedTotal)} of ${fmtINR(grandTotal)}</span>
+        <span style="color: var(--c-text-3); font-size: 11px;">${ymToLabel(ym)}</span>
+      </div>
+      <div class="coll-progress-bar">
+        <div class="coll-progress-santosh" style="width: ${pctSantosh}%"></div>
+        <div class="coll-progress-watchman" style="width: ${pctWatchman}%"></div>
+      </div>
+      <div class="coll-progress-legend">
+        <span><span class="coll-legend-dot" style="background:#06b6d4;"></span>Santosh · ${fmtINR(santoshTotal)}</span>
+        <span><span class="coll-legend-dot" style="background:#f59e0b;"></span>Watchman · ${fmtINR(watchmanTotal)}</span>
+        <span><span class="coll-legend-dot" style="background:#e2e8f0;"></span>Pending · ${fmtINR(pendingTotal)}</span>
+      </div>
+    </div>
+
+    <!-- Flat-by-flat table -->
+    <div class="coll-table-wrap">
+      <table class="coll-table">
+        <thead>
+          <tr>
+            <th>Flat</th>
+            <th class="right">Total amount</th>
+            <th class="center">Paid to Santosh</th>
+            <th class="center">Paid to Watchman</th>
+            <th class="center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${FLATS.map(flat => {
+            const amount = calc.flatTotals[flat] || 0;
+            const paidTo = payments[flat];
+            const rowClass = paidTo ? 'paid' : 'unpaid';
+            return `
+              <tr class="${rowClass}">
+                <td class="coll-flat">${flat}</td>
+                <td class="coll-amount">${fmtINR(amount)}</td>
+                <td class="coll-check-cell">
+                  <div class="coll-check ${paidTo === 'santosh' ? 'checked-santosh' : ''}"
+                       onclick="togglePayment('${flat}', 'santosh')"
+                       title="Mark paid to Santosh">
+                    ${paidTo === 'santosh' ? '✓' : ''}
+                  </div>
+                </td>
+                <td class="coll-check-cell">
+                  <div class="coll-check ${paidTo === 'watchman' ? 'checked-watchman' : ''}"
+                       onclick="togglePayment('${flat}', 'watchman')"
+                       title="Mark paid to Watchman">
+                    ${paidTo === 'watchman' ? '✓' : ''}
+                  </div>
+                </td>
+                <td class="center" style="text-align: center;">
+                  ${paidTo === 'santosh' ? '<span class="coll-status-badge paid-santosh">Santosh ✓</span>' :
+                    paidTo === 'watchman' ? '<span class="coll-status-badge paid-watchman">Watchman ✓</span>' :
+                    '<span class="coll-status-badge unpaid">Pending</span>'}
+                </td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pending flats banner -->
+    ${unpaidFlats.length === 0 ? `
+      <div class="coll-all-paid-banner">
+        ✅ <b>All ${FLAT_COUNT} flats have paid!</b> Total collected: ${fmtINR(collectedTotal)}
+        &nbsp;·&nbsp; Santosh: ${fmtINR(santoshTotal)} &nbsp;·&nbsp; Watchman: ${fmtINR(watchmanTotal)}
+      </div>
+    ` : `
+      <div class="coll-pending-banner">
+        <div class="coll-pending-title">⏳ Pending from ${unpaidFlats.length} flat${unpaidFlats.length > 1 ? 's' : ''} · ${fmtINR(pendingTotal)} to collect</div>
+        <div class="coll-pending-list">
+          ${unpaidFlats.map(p => `<span class="coll-pending-pill">${p.flat} · ${fmtINR(p.amount)}</span>`).join('')}
+        </div>
+      </div>
+    `}
+  `;
+
+  // Wire month picker
+  document.getElementById('coll-month-picker').addEventListener('change', e => {
+    state.ui.selected_month = e.target.value;
+    renderCollection();
+  });
+}
+
+function countPaidTo(payments, who) {
+  return Object.values(payments).filter(v => v === who).length;
+}
+
+function togglePayment(flat, who) {
+  const ym = state.ui.selected_month;
+  if (!state.payments[ym]) state.payments[ym] = {};
+  const current = state.payments[ym][flat];
+  // If already this person, unset (uncheck). Otherwise set to this person (mutually exclusive).
+  if (current === who) {
+    delete state.payments[ym][flat];
+  } else {
+    state.payments[ym][flat] = who;
+  }
+  saveState();
+  renderCollection();
+}
+
+function markAllPaid(who) {
+  const ym = state.ui.selected_month;
+  if (!confirm(`Mark all 27 flats as paid to ${who === 'santosh' ? 'Santosh' : 'the watchman'}?`)) return;
+  if (!state.payments[ym]) state.payments[ym] = {};
+  FLATS.forEach(f => state.payments[ym][f] = who);
+  saveState();
+  renderCollection();
+  toast(`All flats marked paid to ${who === 'santosh' ? 'Santosh' : 'Watchman'}`, 'success');
+}
+
+function resetCollection() {
+  const ym = state.ui.selected_month;
+  if (!confirm(`Reset all payment marks for ${ymToLabel(ym)}? This unmarks everyone as paid.`)) return;
+  state.payments[ym] = {};
+  saveState();
+  renderCollection();
+  toast('Collection reset for this month', 'success');
+}
+
+/* ==================================================================== */
+/* READINGS PAGE (Manual Tracker grid view)                             */
+/* ==================================================================== */
+function renderReadings() {
+  const months = Object.keys(state.readings).sort().reverse();
+  const root = document.getElementById('page-readings');
+
+  if (months.length === 0) {
+    root.innerHTML = `<div class="empty">
+      <div class="empty-icon">📊</div>
+      <div class="empty-title">No readings yet</div>
+      <div class="empty-desc">Meter readings will appear here as you add months.</div>
+    </div>`;
+    return;
+  }
+
+  const range = state.ui.readings_range || 18;
+  const showMonths = range === 'all' ? months : months.slice(0, range);
+
+  root.innerHTML = `
+    <div class="heading-bar hb-slate">
+      <div class="hb-icon">📊</div>
+      <div class="hb-text"><div class="hb-title">Meter readings · ${range === 'all' ? 'all ' + months.length + ' months' : 'last ' + showMonths.length + ' months'}</div></div>
+      <div class="hb-meta">Raw readings (× 10 = litres)</div>
+    </div>
+    <div style="margin-bottom:10px;">
+      <select class="field-select" style="width:auto; max-width:100%;" onchange="state.ui.readings_range = this.value === 'all' ? 'all' : Number(this.value); renderReadings();">
+        ${[6, 12, 18, 24, 'all'].map(v => `<option value="${v}" ${String(v) === String(range) ? 'selected' : ''}>${v === 'all' ? 'All months (' + months.length + ')' : 'Last ' + v + ' months'}</option>`).join('')}
+      </select>
+    </div>
+    <div class="readings-table-wrap">
+      <table class="readings-table">
+        <thead>
+          <tr>
+            <th>Flat</th>
+            ${showMonths.map(m => `<th>${ymToShort(m)}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>
+          ${FLATS.map(f => `
+            <tr>
+              <td>${f}</td>
+              ${showMonths.map(m => {
+                const v = state.readings[m]?.[f];
+                return `<td>${v != null ? fmtNum(v) : '<span style="color:#cbd5e1">—</span>'}</td>`;
+              }).join('')}
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+</script>
+
+<script>
+/* ==================================================================== */
+/* ENTRY PAGE (the main monthly data entry form)                        */
+/* ==================================================================== */
+let entryState = null; // working copy of the month being edited
+
+function renderEntry() {
+  const root = document.getElementById('page-entry');
+
+  // Determine which month to edit
+  const months = listMonths();
+  const lastMonth = months[0];
+  const editYm = state.ui.selected_month || lastMonth || todayYM();
+
+  // Initialize entryState if not yet
+  if (!entryState || entryState.ym !== editYm) {
+    entryState = bootstrapEntryState(editYm);
+  }
+
+  const ym = entryState.ym;
+  const prevYm = prevMonth(ym);
+  const prevReadings = state.readings[prevYm] || {};
+
+  root.innerHTML = `
+    <!-- Top action bar -->
+    <div class="entry-section entry-top">
+      <div>
+        <div style="font-size: 11px; color: var(--c-text-3); letter-spacing: 1.5px; text-transform: uppercase;">Editing</div>
+        <div style="font-size: 18px; font-weight: 600;">${ymToLabel(ym)}</div>
+      </div>
+      <div class="entry-top-actions">
+        <select id="entry-month-pick" class="field-select" style="width:auto; padding:7px 10px; font-size:13px;">
+          ${[...months, ...generateUpcomingMonths(months[0])]
+            .filter((v,i,a) => a.indexOf(v) === i).sort().reverse()
+            .map(m => `<option value="${m}" ${m === ym ? 'selected' : ''}>${ymToLabel(m)}</option>`).join('')}
+        </select>
+        <button class="btn btn-secondary btn-small" onclick="startNewMonth()">➕ New month</button>
+        <button class="btn btn-danger btn-small" onclick="deleteThisMonth()" title="Delete this month's data entirely">🗑 Delete month</button>
+      </div>
+    </div>
+
+    <!-- WATCHMAN IMAGE -->
+    <div class="entry-section">
+      <div class="entry-section-title">
+        <span>📸 Watchman's reading photo</span>
+      </div>
+      ${entryState.watchmanImage ? `
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center;">
+          <button class="ai-btn" id="ai-run-btn" onclick="runAIReader()">🤖 Read readings with AI</button>
+          ${entryState.aiRows ? `<button class="btn btn-secondary btn-small" onclick="showAIReview()">Review AI result</button>` : ''}
+        </div>` : ''}
+      <div id="upload-area" class="upload-area ${entryState.watchmanImage ? 'has-image' : ''}">
+        ${entryState.watchmanImage ?
+          `<img src="${entryState.watchmanImage}" alt="watchman reading">
+           <button class="upload-clear" onclick="clearWatchmanImage()">✕ Replace</button>`
+          : `<div class="upload-icon">📷</div>
+             <div class="upload-text">Tap to add the watchman's photo</div>
+             <div class="upload-hint">From WhatsApp: save the image to Photos first · or take a photo of the sheet</div>`
+        }
+      </div>
+      <input type="file" id="watchman-input" accept="image/*" style="display:none;">
+      <div id="ai-status" class="ai-box" style="display:none;"></div>
+    </div>
+
+    <!-- READINGS GRID -->
+    <div class="entry-section">
+      <div class="entry-section-title">
+        <span>🚰 Meter readings (raw)</span>
+        <span style="text-transform: none; font-size: 11px; color: var(--c-text-3); font-weight: 400; letter-spacing: 0;">
+          Previous month: ${ymToShort(prevYm)}
+        </span>
+        <button class="btn btn-secondary btn-small" onclick="toggleSplitView()" id="split-view-btn" style="margin-left: auto;">
+          ${entryState.splitView ? '⬅ Exit split view' : '🖼 Split view (photo + inputs)'}
+        </button>
+        <button class="btn btn-ghost btn-small" onclick="clearAllReadings()">🗑 Clear all</button>
+      </div>
+      ${entryState.splitView && entryState.watchmanImage ? `
+        <!-- SPLIT VIEW: Photo on left, inputs on right -->
+        <div class="split-wrap">
+          <div class="split-photo" id="split-photo">
+            <img src="${entryState.watchmanImage}" alt="watchman sheet" onclick="document.getElementById('split-photo').classList.toggle('zoomed')">
+            <div class="zoom-hint">Tap photo to zoom in / out · scroll inside to move</div>
+          </div>
+          <div class="split-inputs">
+            ${FLATS.map((flat, idx) => {
+              const cur = entryState.readings[flat];
+              const prev = prevReadings[flat];
+              const flag = entryState.aiFlags?.[flat];
+              return `
+                <div class="reading-row ${flag ? 'ai-flag' : ''}" data-flat="${flat}" style="${flag ? '' : 'background: white;'}">
+                  <div class="reading-flat" style="min-width: 36px; font-size: 13px;">${flat}</div>
+                  <input type="number"
+                         class="reading-input"
+                         data-flat="${flat}"
+                         data-idx="${idx}"
+                         inputmode="numeric"
+                         value="${cur != null ? cur : ''}"
+                         placeholder="${prev != null ? 'prev: ' + prev : '—'}"
+                         enterkeyhint="next"
+                         onkeydown="handleReadingKey(event, ${idx})">
+                  ${flag ? `<span class="ai-chip" onclick="showAIFlag('${flat}')">check</span>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : `
+        <!-- STANDARD GRID VIEW -->
+        <div class="readings-grid" id="readings-grid">
+          ${FLATS.map((flat, idx) => {
+            const cur = entryState.readings[flat];
+            const prev = prevReadings[flat];
+            const isManual = entryState.manualFlats.includes(flat);
+            const ocrSuggested = entryState.ocrResults[flat];
+            const flag = entryState.aiFlags?.[flat];
+            return `
+              <div class="reading-row ${isManual ? 'manual' : ''} ${flag ? 'ai-flag' : ''}" data-flat="${flat}">
+                <div class="reading-flat">${flat}</div>
+                <input type="number"
+                       class="reading-input"
+                       data-flat="${flat}"
+                       data-idx="${idx}"
+                       inputmode="numeric"
+                       value="${cur != null ? cur : ''}"
+                       placeholder="${prev != null ? 'prev: ' + prev : '—'}"
+                       enterkeyhint="next"
+                       onkeydown="handleReadingKey(event, ${idx})">
+                ${flag ? `<span class="ai-chip" onclick="showAIFlag('${flat}')">check</span>` : ''}
+                ${ocrSuggested != null && !isManual ? `
+                  <span class="reading-suggested" data-flat="${flat}" data-val="${ocrSuggested}" title="OCR detected: tap to use">
+                    ${ocrSuggested}
+                  </span>
+                ` : ''}
+                <button class="reading-toggle ${isManual ? 'on' : ''}" data-flat="${flat}" title="Toggle manual entry mode (e.g. broken meter)">
+                  M
+                </button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `}
+    </div>
+
+    <!-- WATER CHARGES -->
+    <div class="entry-section">
+      <div class="entry-section-title">💧 Water charges</div>
+      <div class="grid-3">
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">Tankers count</label>
+          <input type="number" class="field-input" id="ent-tankers" inputmode="numeric" value="${entryState.water.tankers_count}">
+        </div>
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">Rate / tanker</label>
+          <input type="number" class="field-input" id="ent-tanker-rate" inputmode="numeric" value="${entryState.water.tanker_rate}">
+        </div>
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">Pump electricity</label>
+          <input type="number" class="field-input" id="ent-pump" inputmode="numeric" value="${entryState.water.pump_electricity}">
+        </div>
+      </div>
+      <div id="water-summary" style="margin-top: 12px; padding: 10px 14px; background: var(--c-bg-soft); border-radius: 8px; font-size: 12px; color: var(--c-text-2);">
+        <span id="water-calc-text">…</span>
+      </div>
+    </div>
+
+    <!-- COMMON EXPENSES -->
+    <div class="entry-section">
+      <div class="entry-section-title">
+        <span>🏠 Common expenses</span>
+        <span style="text-transform: none; font-size: 11px; color: var(--c-text-3); font-weight: 400; letter-spacing: 0;">
+          ÷ ${FLAT_COUNT} flats = per-flat rate
+        </span>
+      </div>
+      <div id="common-expenses-list">
+        ${entryState.commonExpenses.map((e, i) => renderExpenseRow(e, i, 'common')).join('')}
+      </div>
+      <button class="add-row-btn" onclick="addCommonExpense()">+ Add expense item</button>
+    </div>
+
+    <!-- ANNUAL MAINTENANCE -->
+    <div class="entry-section">
+      <div class="entry-section-title">🛗 Half-yearly &amp; annual maintenance</div>
+      <div class="grid-2">
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">Lift maintenance (this month)</label>
+          <input type="number" class="field-input" id="ent-lift" inputmode="numeric" value="${entryState.annual.lift ?? ''}" placeholder="leave blank if not paid (NA)">
+        </div>
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">Generator maintenance (this month)</label>
+          <input type="number" class="field-input" id="ent-gen" inputmode="numeric" value="${entryState.annual.generator ?? ''}" placeholder="leave blank if not paid (NA)">
+        </div>
+      </div>
+    </div>
+
+    <!-- RECONCILIATION (PREVIOUS MONTH) -->
+    <div class="entry-section">
+      <div class="entry-section-title">📋 Previous month reconciliation (${ymToShort(prevYm)})</div>
+      <div class="grid-3">
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">${ymToShort(prevYm)} collection</label>
+          <input type="number" class="field-input" id="ent-recon-coll" inputmode="numeric" value="${entryState.recon.monthly_collection}">
+        </div>
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">Balance from earlier</label>
+          <input type="number" class="field-input" id="ent-recon-bal" inputmode="numeric" value="${entryState.recon.balance_from_last}">
+        </div>
+        <div class="field" style="margin-bottom: 0;">
+          <label class="field-label">${ymToShort(prevYm)} common total</label>
+          <input type="number" class="field-input" id="ent-recon-base" inputmode="numeric" value="${entryState.recon.prev_expense_base}">
+        </div>
+      </div>
+      <div style="margin-top: 14px;">
+        <label class="field-label">Extra ad-hoc expenses paid in ${ymToShort(prevYm)}</label>
+        <div id="extra-expenses-list">
+          ${entryState.recon.extra_expenses.map((e, i) => renderExpenseRow(e, i, 'extra')).join('')}
+        </div>
+        <button class="add-row-btn" onclick="addExtraExpense()">+ Add extra expense</button>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="entry-actions">
+      <button class="btn btn-ghost" onclick="cancelEntry()">Cancel</button>
+      <button class="btn btn-secondary" onclick="saveEntry()">💾 Save</button>
+      <button class="btn btn-primary" onclick="saveAndPreview()">✓ Save &amp; preview</button>
+    </div>
+  `;
+
+  // Wire up events
+  wireEntryEvents();
+  updateWaterSummary();
+}
+
+function bootstrapEntryState(ym) {
+  const existing = state.monthly[ym];
+  const readings = state.readings[ym] || {};
+  const manualFlats = state.manual_flags[ym] || [];
+  const watchmanImage = state.watchman_images[ym];
+
+  if (existing) {
+    return {
+      ym,
+      isNew: false,
+      readings: { ...readings },
+      manualFlats: [...manualFlats],
+      ocrResults: {},
+      aiFlags: {},
+      watchmanImage,
+      splitView: false,
+      water: { ...existing.water },
+      commonExpenses: existing.common_expenses.map(e => ({...e})),
+      annual: {...existing.annual_maintenance},
+      recon: {
+        prev_month: existing.reconciliation.prev_month,
+        monthly_collection: existing.reconciliation.monthly_collection,
+        balance_from_last: existing.reconciliation.balance_from_last,
+        prev_expense_base: existing.reconciliation.prev_expense_base,
+        extra_expenses: existing.reconciliation.extra_expenses.map(e => ({...e}))
+      }
+    };
+  }
+
+  // New month - bootstrap from previous
+  const prevYm = prevMonth(ym);
+  const prevExisting = state.monthly[prevYm];
+  const prevCalc = prevExisting ? calculateMonth(prevYm) : null;
+  return {
+    ym,
+    isNew: true,
+    readings: {},
+    manualFlats: [],
+    ocrResults: {},
+    aiFlags: {},
+    watchmanImage: null,
+    splitView: false,
+    water: {
+      tankers_count: prevExisting?.water.tankers_count || 0,
+      tanker_rate: state.config.tanker_rate,
+      pump_electricity: prevExisting?.water.pump_electricity || state.config.pump_electricity_default
+    },
+    commonExpenses: prevExisting?.common_expenses.map(e => ({...e}))
+                    || DEFAULT_COMMON_EXPENSES.map(e => ({...e})),
+    annual: { lift: null, generator: null },
+    recon: {
+      prev_month: prevYm,
+      monthly_collection: prevCalc?.grandTotalCollection || 0,
+      balance_from_last: prevCalc?.reconciliation.carried_forward || 0,
+      prev_expense_base: (prevCalc?.commonExpensesTotal || 0) + (prevCalc?.totalWaterBill || 0),
+      extra_expenses: []
+    }
+  };
+}
+
+function generateUpcomingMonths(latestKnown) {
+  if (!latestKnown) return [todayYM()];
+  // Allow editing a few future months
+  const arr = [];
+  let m = latestKnown;
+  for (let i = 0; i < 3; i++) {
+    m = nextMonth(m);
+    arr.push(m);
+  }
+  return arr;
+}
+
+function renderExpenseRow(exp, idx, kind) {
+  return `
+    <div class="expense-row" data-idx="${idx}" data-kind="${kind}">
+      <input type="text" class="field-input expense-name" value="${exp.name || ''}" placeholder="Expense name">
+      <input type="number" inputmode="numeric" class="field-input expense-amt" value="${exp.amount ?? ''}" placeholder="Amount">
+      <button class="btn-icon" onclick="removeExpense(${idx}, '${kind}')" title="Remove">✕</button>
+    </div>
+  `;
+}
+
+function wireEntryEvents() {
+  // Month picker
+  document.getElementById('entry-month-pick').addEventListener('change', e => {
+    state.ui.selected_month = e.target.value;
+    entryState = null;
+    renderEntry();
+  });
+
+  // Image upload
+  const uploadArea = document.getElementById('upload-area');
+  const fileInput = document.getElementById('watchman-input');
+  uploadArea.addEventListener('click', () => {
+    if (!entryState.watchmanImage) fileInput.click();
+  });
+  uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.style.borderColor = '#0d9488'; });
+  uploadArea.addEventListener('dragleave', () => { uploadArea.style.borderColor = ''; });
+  uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.style.borderColor = '';
+    if (e.dataTransfer.files[0]) handleWatchmanFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', e => {
+    if (e.target.files[0]) handleWatchmanFile(e.target.files[0]);
+  });
+
+
+  // Reading inputs
+  document.querySelectorAll('.reading-input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      const flat = e.target.dataset.flat;
+      const v = e.target.value.trim();
+      entryState.readings[flat] = v ? Number(v) : null;
+      if (entryState.aiFlags && entryState.aiFlags[flat]) {
+        delete entryState.aiFlags[flat];
+        const row = e.target.closest('.reading-row');
+        if (row) { row.classList.remove('ai-flag'); const chip = row.querySelector('.ai-chip'); if (chip) chip.remove(); }
+      }
+    });
+  });
+
+  // Manual toggle
+  document.querySelectorAll('.reading-toggle').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const flat = e.target.dataset.flat;
+      const idx = entryState.manualFlats.indexOf(flat);
+      if (idx >= 0) entryState.manualFlats.splice(idx, 1);
+      else entryState.manualFlats.push(flat);
+      renderEntry();
+    });
+  });
+
+  // OCR suggested (click to fill)
+  document.querySelectorAll('.reading-suggested').forEach(el => {
+    el.addEventListener('click', e => {
+      const flat = e.target.dataset.flat;
+      const val = e.target.dataset.val;
+      const inp = document.querySelector(`.reading-input[data-flat="${flat}"]`);
+      inp.value = val;
+      entryState.readings[flat] = Number(val);
+      e.target.style.background = 'var(--c-emerald)';
+      e.target.style.color = 'white';
+    });
+  });
+
+  // Water inputs
+  ['ent-tankers', 'ent-tanker-rate', 'ent-pump'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', e => {
+      const v = Number(e.target.value) || 0;
+      if (id === 'ent-tankers') entryState.water.tankers_count = v;
+      if (id === 'ent-tanker-rate') entryState.water.tanker_rate = v;
+      if (id === 'ent-pump') entryState.water.pump_electricity = v;
+      updateWaterSummary();
+    });
+  });
+
+  // Common expenses
+  document.getElementById('common-expenses-list').addEventListener('input', e => {
+    const row = e.target.closest('.expense-row');
+    if (!row) return;
+    const idx = +row.dataset.idx;
+    if (e.target.classList.contains('expense-name')) {
+      entryState.commonExpenses[idx].name = e.target.value;
+    } else if (e.target.classList.contains('expense-amt')) {
+      entryState.commonExpenses[idx].amount = Number(e.target.value) || 0;
+    }
+  });
+
+  // Annual
+  document.getElementById('ent-lift').addEventListener('input', e => {
+    const v = e.target.value.trim();
+    entryState.annual.lift = v ? Number(v) : null;
+  });
+  document.getElementById('ent-gen').addEventListener('input', e => {
+    const v = e.target.value.trim();
+    entryState.annual.generator = v ? Number(v) : null;
+  });
+
+  // Recon
+  document.getElementById('ent-recon-coll').addEventListener('input', e => {
+    entryState.recon.monthly_collection = Number(e.target.value) || 0;
+  });
+  document.getElementById('ent-recon-bal').addEventListener('input', e => {
+    entryState.recon.balance_from_last = Number(e.target.value) || 0;
+  });
+  document.getElementById('ent-recon-base').addEventListener('input', e => {
+    entryState.recon.prev_expense_base = Number(e.target.value) || 0;
+  });
+
+  // Extra expenses
+  document.getElementById('extra-expenses-list').addEventListener('input', e => {
+    const row = e.target.closest('.expense-row');
+    if (!row) return;
+    const idx = +row.dataset.idx;
+    if (e.target.classList.contains('expense-name')) {
+      entryState.recon.extra_expenses[idx].name = e.target.value;
+    } else if (e.target.classList.contains('expense-amt')) {
+      entryState.recon.extra_expenses[idx].amount = Number(e.target.value) || 0;
+    }
+  });
+}
+
+function updateWaterSummary() {
+  const tot = (entryState.water.tankers_count||0) * (entryState.water.tanker_rate||0) + (entryState.water.pump_electricity||0);
+  // Compute total usage based on entered readings
+  const prevReadings = state.readings[prevMonth(entryState.ym)] || {};
+  let totalUsage = 0;
+  FLATS.forEach(f => {
+    const cur = entryState.readings[f];
+    const prev = prevReadings[f];
+    if (cur != null && prev != null) totalUsage += Math.max(0, (cur - prev) * 10);
+  });
+  const ppl = totalUsage > 0 ? (tot / totalUsage).toFixed(2) : '—';
+  const txt = document.getElementById('water-calc-text');
+  if (txt) {
+    txt.innerHTML = `
+      Total water bill: <b>${fmtINR(tot)}</b>
+      &nbsp;·&nbsp; Total usage: <b>${fmtNum(totalUsage)} L</b>
+      &nbsp;·&nbsp; Per-litre price: <b>₹${ppl}</b>
+    `;
+  }
+}
+
+function addCommonExpense() {
+  entryState.commonExpenses.push({ name: '', amount: 0 });
+  renderEntry();
+}
+function addExtraExpense() {
+  entryState.recon.extra_expenses.push({ name: '', amount: 0 });
+  renderEntry();
+}
+function removeExpense(idx, kind) {
+  if (kind === 'common') entryState.commonExpenses.splice(idx, 1);
+  else entryState.recon.extra_expenses.splice(idx, 1);
+  renderEntry();
+}
+
+function handleWatchmanFile(file) {
+  const reader = new FileReader();
+  reader.onload = async e => {
+    try {
+      entryState.watchmanImage = await shrinkImage(e.target.result);
+    } catch (err) {
+      toast(err.message, 'error'); return;
+    }
+    entryState.aiRows = null; entryState.aiFlags = {};
+    renderEntry();
+    if (getAI().key) runAIReader();
+    else toast('Photo added. Tap "Read readings with AI" to fill them automatically.');
+  };
+  reader.readAsDataURL(file);
+}
+function clearWatchmanImage() {
+  entryState.watchmanImage = null;
+  entryState.ocrResults = {};
+  entryState.aiRows = null; entryState.aiFlags = {};
+  renderEntry();
+  document.getElementById('watchman-input').click();
+}
+
+function startNewMonth() {
+  const months = listMonths();
+  const last = months[0];
+  const newYm = last ? nextMonth(last) : todayYM();
+  state.ui.selected_month = newYm;
+  entryState = null;
+  navigate('entry');
+  toast(`Started ${ymToLabel(newYm)} — last month carried forward.`);
+}
+
+function cancelEntry() {
+  if (confirm('Discard your changes?')) {
+    entryState = null;
+    navigate('dashboard');
+  }
+}
+
+function clearAllReadings() {
+  if (confirm('Clear all 27 readings for this month?')) {
+    entryState.readings = {};
+    entryState.ocrResults = {};
+    entryState.aiFlags = {};
+    renderEntry();
+    toast('All readings cleared', 'success');
+  }
+}
+
+function toggleSplitView() {
+  if (!entryState.watchmanImage) {
+    toast('Please upload a photo first to use split view', 'error');
+    return;
+  }
+  entryState.splitView = !entryState.splitView;
+  renderEntry();
+  if (entryState.splitView) {
+    toast('Split view active — photo stays visible while you type. Tab/Enter moves to next.');
+  }
+}
+
+function handleReadingKey(event, currentIdx) {
+  // Tab or Enter -> next input
+  if (event.key === 'Enter' || (event.key === 'Tab' && !event.shiftKey)) {
+    event.preventDefault();
+    const nextIdx = currentIdx + 1;
+    if (nextIdx < FLATS.length) {
+      const nextInput = document.querySelector(`.reading-input[data-idx="${nextIdx}"]`);
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.select();
+      }
+    }
+  }
+  // Shift+Tab -> previous input
+  if (event.key === 'Tab' && event.shiftKey) {
+    event.preventDefault();
+    const prevIdx = currentIdx - 1;
+    if (prevIdx >= 0) {
+      const prevInput = document.querySelector(`.reading-input[data-idx="${prevIdx}"]`);
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.select();
+      }
+    }
+  }
+}
+
+function deleteThisMonth() {
+  const ym = entryState.ym;
+  if (confirm(`Delete all data for ${ymToLabel(ym)}? This cannot be undone.`)) {
+    delete state.readings[ym];
+    delete state.manual_flags[ym];
+    delete state.watchman_images[ym];
+    delete state.monthly[ym];
+    saveState();
+    idbDeleteImage(ym).catch(() => {});
+    entryState = null;
+    navigate('dashboard');
+    toast(`Deleted ${ymToLabel(ym)}`, 'success');
+  }
+}
+
+function saveEntry(silent) {
+  const ym = entryState.ym;
+
+  // Save readings
+  state.readings[ym] = { ...entryState.readings };
+  // Strip out null/empty
+  Object.keys(state.readings[ym]).forEach(f => {
+    if (state.readings[ym][f] == null) delete state.readings[ym][f];
+  });
+
+  state.manual_flags[ym] = [...entryState.manualFlats];
+  if (entryState.watchmanImage) {
+    state.watchman_images[ym] = entryState.watchmanImage;
+    idbPutImage(ym, entryState.watchmanImage).catch(e => toast('Photo not saved: ' + e.message, 'error'));
+  } else if (state.watchman_images[ym]) {
+    delete state.watchman_images[ym];
+    idbDeleteImage(ym).catch(() => {});
+  }
+
+  // Save monthly data
+  state.monthly[ym] = {
+    water: { ...entryState.water },
+    common_expenses: entryState.commonExpenses.filter(e => e.name).map(e => ({...e})),
+    annual_maintenance: { ...entryState.annual },
+    reconciliation: {
+      prev_month: entryState.recon.prev_month,
+      monthly_collection: entryState.recon.monthly_collection,
+      balance_from_last: entryState.recon.balance_from_last,
+      prev_expense_base: entryState.recon.prev_expense_base,
+      extra_expenses: entryState.recon.extra_expenses.filter(e => e.name).map(e => ({...e}))
+    }
+  };
+
+  saveState();
+  if (!silent) toast('Saved!', 'success');
+}
+
+function saveAndPreview() {
+  saveEntry(true);
+  state.ui.selected_month = entryState.ym;
+  navigate('dashboard');
+  toast('Saved · viewing summary', 'success');
+}
+
+/* ==================================================================== */
+/* SETTINGS PAGE                                                        */
+/* ==================================================================== */
+function renderSettings() {
+  const root = document.getElementById('page-settings');
+  root.innerHTML = `
+    <div class="heading-bar hb-slate">
+      <div class="hb-icon">⚙</div>
+      <div class="hb-text"><div class="hb-title">Settings &amp; data</div></div>
+      <div class="hb-meta">${Object.keys(state.monthly).length} months stored</div>
+    </div>
+
+    <div class="settings-grid">
+
+      <div class="settings-card">
+        <div class="settings-title">🤖 AI reader (watchman's sheet)</div>
+        <div class="kv-row"><span>Status</span><span class="${getAI().key ? 'ok-t' : 'warn-t'}">${getAI().key ? 'Ready ✓' : 'Not set up'}</span></div>
+        <div class="kv-row"><span>Model</span><span>${getAI().lastModel || getAI().model || AI_DEFAULT_MODEL}</span></div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+          <button class="btn btn-primary btn-small" onclick="showAIKeyHelp(false)">${getAI().key ? 'Change key' : 'Set up (free)'}</button>
+          ${getAI().key ? '<button class="btn btn-secondary btn-small" onclick="testAIKey()">Test key</button><button class="btn btn-ghost btn-small" onclick="removeAIKey()">Remove</button>' : ''}
+        </div>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">Society details</div>
+        <div class="field">
+          <label class="field-label">Society name</label>
+          <input type="text" class="field-input" id="set-name" value="${state.config.society_name}">
+        </div>
+        <div class="field">
+          <label class="field-label">Default tanker rate</label>
+          <input type="number" class="field-input" id="set-tanker-rate" value="${state.config.tanker_rate}">
+        </div>
+        <button class="btn btn-primary btn-small" onclick="saveSettings()">Save settings</button>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">Pending dues</div>
+        <div id="dues-list">
+          ${state.pending_dues.map((d, i) => `
+            <div class="list-item">
+              <span><b>${d.flat}</b> · ${fmtINR(d.amount)} · <span style="color:var(--c-text-3)">${d.note}</span></span>
+              <button class="btn-icon" onclick="removePendingDue(${i})">✕</button>
+            </div>
+          `).join('')}
+        </div>
+        <button class="add-row-btn" onclick="addPendingDue()">+ Add pending due</button>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">Backup &amp; restore</div>
+        <p style="font-size: 12px; color: var(--c-text-3); margin-bottom: 8px;">
+          Your data is stored only on this phone. Save a backup to iCloud Drive / WhatsApp / Drive regularly.
+        </p>
+        <div class="kv-row"><span>Last backup</span><span class="${needsBackup() ? 'warn-t' : 'ok-t'}">${getMeta().lastBackup ? new Date(getMeta().lastBackup).toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Never'}</span></div>
+        <div class="kv-row"><span>Photos stored</span><span>${Object.keys(state.watchman_images || {}).length}</span></div>
+        <div class="kv-row"><span>Installed as app</span><span class="${isStandalone() ? 'ok-t' : 'warn-t'}">${isStandalone() ? 'Yes ✓' : 'Not yet'}</span></div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px;">
+          <button class="btn btn-primary btn-small" onclick="downloadBackup()">⬆ Save / share backup</button>
+          <button class="btn btn-secondary btn-small" onclick="uploadBackup()">⬇ Restore backup</button>
+          <button class="btn btn-secondary btn-small" onclick="exportExcel()">📊 Export Excel</button>
+        </div>
+        <input type="file" id="backup-file" accept=".json,application/json,text/plain" style="display:none;">
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">📲 Install on your phone</div>
+        <ol class="key-steps" style="margin-top:0;">
+          ${isIOS ? `<li>Open this page in <b>Safari</b>.</li><li>Tap <b>Share ⬆</b> → <b>Add to Home Screen</b>.</li><li>Keep <b>Open as Web App</b> on → <b>Add</b>.</li><li>Always open it from the <b>Lotus Parimal</b> icon.</li>`
+                  : `<li>Open this page in <b>Chrome</b>.</li><li>Tap <b>⋮</b> → <b>Add to Home screen</b> / <b>Install app</b>.</li><li>Always open it from the new icon.</li>`}
+        </ol>
+      </div>
+
+      <div class="settings-card">
+        <div class="settings-title">Danger zone</div>
+        <p style="font-size: 12px; color: var(--c-text-3); margin-bottom: 12px;">
+          Reset wipes everything. Backup first if needed.
+        </p>
+        <button class="btn btn-danger btn-small" onclick="resetData()">🗑 Reset all data</button>
+      </div>
+
+    </div>
+  `;
+  document.getElementById('backup-file').addEventListener('change', handleBackupFile);
+}
+
+
+function saveSettings() {
+  state.config.society_name = document.getElementById('set-name').value || state.config.society_name;
+  state.config.tanker_rate = Number(document.getElementById('set-tanker-rate').value) || state.config.tanker_rate;
+  saveState();
+  toast('Settings saved', 'success');
+  // Update brand name
+  document.querySelector('.brand-name').textContent = state.config.society_name;
+}
+
+function addPendingDue() {
+  showModal(`
+    <div class="modal-title">Add pending due</div>
+    <div class="field"><label class="field-label">Flat</label><input class="field-input" id="due-flat"></div>
+    <div class="field"><label class="field-label">Amount (₹)</label><input class="field-input" id="due-amt" type="number"></div>
+    <div class="field"><label class="field-label">Note</label><input class="field-input" id="due-note"></div>
+    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="savePendingDue()">Add</button>
+    </div>
+  `);
+}
+function savePendingDue() {
+  const flat = document.getElementById('due-flat').value.trim();
+  const amount = Number(document.getElementById('due-amt').value);
+  const note = document.getElementById('due-note').value.trim();
+  if (!flat || !amount) { toast('Flat and amount required', 'error'); return; }
+  state.pending_dues.push({ flat, amount, note });
+  saveState();
+  closeModal();
+  renderSettings();
+}
+function removePendingDue(i) {
+  state.pending_dues.splice(i, 1);
+  saveState();
+  renderSettings();
+}
+
+function downloadBackup() {
+  const blob = new Blob([JSON.stringify({
+    config: state.config, pending_dues: state.pending_dues,
+    readings: state.readings, manual_flags: state.manual_flags,
+    watchman_images: state.watchman_images, monthly: state.monthly,
+    payments: state.payments,
+    backup_version: 2, created: new Date().toISOString()
+  }, null, 2)], { type: 'application/json' });
+  shareOrSave(blob, `lotus_parimal_backup_${new Date().toISOString().slice(0,10)}.json`, 'Lotus Parimal backup').then(r => {
+    if (r === 'cancelled') return;
+    setMeta({ lastBackup: Date.now() });
+    toast(r === 'shared' ? 'Backup shared ✓' : 'Backup saved ✓', 'success');
+    if (state.ui.current_page === 'settings') renderSettings();
+  });
+}
+function uploadBackup() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json,application/json,text/plain';
+  inp.style.display = 'none';
+  inp.addEventListener('change', e => { handleBackupFile(e); inp.remove(); });
+  document.body.appendChild(inp);
+  inp.click();
+}
+function handleBackupFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data || typeof data !== 'object' || (!data.monthly && !data.readings)) throw new Error('bad');
+      const nM = Object.keys(data.monthly || {}).length, nR = Object.keys(data.readings || {}).length;
+      if (!confirm(`Restore backup from ${data.created ? new Date(data.created).toLocaleString('en-IN') : 'unknown date'}?\n\n${nM} months · ${nR} months of readings · ${Object.keys(data.watchman_images || {}).length} photos\n\nThis replaces the data on this phone.`)) return;
+      ['config', 'pending_dues', 'readings', 'manual_flags', 'watchman_images', 'monthly', 'payments'].forEach(k => {
+        if (data[k] !== undefined) state[k] = data[k];
+      });
+      if (!state.payments) state.payments = {};
+      if (!state.watchman_images) state.watchman_images = {};
+      if (!state.manual_flags) state.manual_flags = {};
+      saveState();
+      await persistAllImages();
+      setMeta({ lastBackup: Date.now() });
+      entryState = null;
+      state.ui.selected_month = listMonths()[0] || todayYM();
+      document.querySelector('.brand-name').textContent = state.config.society_name;
+      toast(`Restored ${nM} months ✓`, 'success');
+      navigate('dashboard');
+    } catch (err) { console.error(err); toast('Invalid backup file', 'error'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+function resetData() {
+  if (!confirm('Wipe ALL data? This cannot be undone.')) return;
+  if (!confirm('Really? Last chance.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  idbClearImages().catch(() => {}).finally(() => location.reload());
+}
+
+/* ==================================================================== */
+/* EXPORT TO PNG                                                        */
+/* ==================================================================== */
+let lastSummaryBlob = null;
+async function shareSummaryImage() {
+  if (!lastSummaryBlob) return;
+  const r = await shareOrSave(lastSummaryBlob, `Lotus_Parimal_${state.ui.selected_month}_summary.png`, `${state.config.society_name} · ${ymToLabel(state.ui.selected_month)}`);
+  if (r !== 'cancelled') toast(r === 'shared' ? 'Shared ✓' : 'Image saved ✓', 'success');
+}
+async function downloadSummaryPNG() {
+  toast('Generating image…');
+  const target = document.getElementById('summary-printable');
+  if (!target) { toast('Nothing to export', 'error'); return; }
+
+  // Hide the action buttons during capture
+  document.querySelectorAll('[data-no-print]').forEach(el => el.style.display = 'none');
+
+  // Wait for any pending animations to settle
+  await new Promise(resolve => setTimeout(resolve, 600));
+
+  try {
+    if (typeof html2canvas === 'undefined') throw new Error('Image library not loaded — needs internet once');
+    const canvas = await html2canvas(target, {
+      scale: 2,
+      backgroundColor: '#eef2f7',
+      useCORS: true,
+      logging: false,
+      windowWidth: 1240,
+      width: 1196,
+      // CRITICAL: Disable animations in the cloned DOM so all cards render fully
+      onclone: (clonedDoc) => {
+        const style = clonedDoc.createElement('style');
+        style.textContent = `
+          *, *::before, *::after {
+            animation: none !important;
+            animation-delay: 0s !important;
+            animation-duration: 0s !important;
+            animation-fill-mode: forwards !important;
+            transition: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+          .flat-card, .recon-cell, .amc-mini {
+            opacity: 1 !important;
+            transform: none !important;
+          }
+          #summary-printable { width: 1196px !important; padding: 0 !important; }
+          .m-banner { display: none !important; }
+        `;
+        clonedDoc.head.appendChild(style);
+      }
+    });
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    lastSummaryBlob = blob;
+    const url = URL.createObjectURL(blob);
+    showModal(`
+      <div class="modal-title">Summary image · ${ymToLabel(state.ui.selected_month)}</div>
+      <img class="img-preview" src="${url}" alt="summary">
+      <div style="font-size:12px;color:var(--c-text-3);text-align:center;">Tip: long-press the image to save it to Photos.</div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+        <button class="btn btn-secondary" onclick="downloadBlob(lastSummaryBlob, 'Lotus_Parimal_${state.ui.selected_month}_summary.png')">⬇ Save</button>
+        <button class="btn btn-primary" onclick="shareSummaryImage()">📤 Share to WhatsApp</button>
+      </div>`);
+  } catch (err) {
+    toast('Export failed: ' + err.message, 'error');
+  } finally {
+    document.querySelectorAll('[data-no-print]').forEach(el => el.style.display = '');
+  }
+}
+
+/* ==================================================================== */
+/* EXPORT TO EXCEL                                                      */
+/* ==================================================================== */
+function exportExcel() {
+  if (typeof XLSX === 'undefined') { toast('Excel library not loaded', 'error'); return; }
+
+  const wb = XLSX.utils.book_new();
+
+  // Sheet 1: Manual Tracker (readings grid)
+  const months = Object.keys(state.readings).sort();
+  const trackerData = [['Flat', ...months.map(m => ymToShort(m))]];
+  FLATS.forEach(flat => {
+    trackerData.push([flat, ...months.map(m => state.readings[m]?.[flat] ?? '')]);
+  });
+  const trackerWS = XLSX.utils.aoa_to_sheet(trackerData);
+  XLSX.utils.book_append_sheet(wb, trackerWS, 'Manual Tracker');
+
+  // Sheet per month: detailed breakdown
+  listMonths().forEach(ym => {
+    const calc = calculateMonth(ym);
+    if (!calc) return;
+    const m = state.monthly[ym];
+    const data = [
+      [`${state.config.society_name} — ${calc.label}`],
+      [],
+      ['Flat', 'Litres', 'Water Bill', 'Common', 'Total Payable'],
+      ...FLATS.map(f => [f, calc.usage[f], calc.flatWaterBills[f], calc.perFlatCommon, calc.flatTotals[f]]),
+      ['TOTAL', calc.totalUsage, calc.totalFlatWaterBills, calc.perFlatCommon * FLAT_COUNT, calc.grandTotalCollection],
+      [],
+      ['Water Charges'],
+      [`Tankers ${m.water.tankers_count} × ₹${m.water.tanker_rate}`, calc.tankersTotal],
+      ['Pump electricity', m.water.pump_electricity],
+      ['Total water bill', calc.totalWaterBill],
+      [],
+      ['Common Expenses'],
+      ...m.common_expenses.map(e => [e.name, e.amount]),
+      ['Total common', calc.commonExpensesTotal],
+      ['Per-flat common (÷27)', calc.perFlatCommon],
+      [],
+      ['Half-yearly & Annual'],
+      ['Lift', m.annual_maintenance.lift ?? 'NA'],
+      ['Generator', m.annual_maintenance.generator ?? 'NA'],
+      [],
+      [`${ymToShort(calc.reconciliation.prev_month)} Reconciliation`],
+      ['Monthly collection', calc.reconciliation.monthly_collection],
+      ['Balance from earlier', calc.reconciliation.balance_from_last],
+      ['Total collection', calc.reconciliation.total_collection],
+      ['Common expense base', calc.reconciliation.prev_expense_base],
+      ...calc.reconciliation.extra_expenses.map(e => [e.name, e.amount]),
+      ['Total expenditure', calc.reconciliation.total_expenditure],
+      ['Carried forward', calc.reconciliation.carried_forward]
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, ymToShort(ym).replace(/[^\w\s-]/g, ''));
+  });
+
+  const out = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  shareOrSave(blob, `Lotus_Parimal_Maintenance_${new Date().toISOString().slice(0,10)}.xlsx`, 'Lotus Parimal Excel').then(r => {
+    if (r !== 'cancelled') toast('Excel ready ✓', 'success');
+  });
+}
+
+/* ==================================================================== */
+/* PHONE STORAGE — photos live in IndexedDB (much larger than           */
+/* localStorage), everything else stays in localStorage as before.      */
+/* ==================================================================== */
+const IMG_DB = 'lotus_parimal_images';
+const META_KEY = 'lotus_parimal_meta';
+const AI_KEY_STORE = 'lotus_parimal_ai';   // AI key: this phone only, never in backups
+
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    if (!('indexedDB' in window)) { reject(new Error('IndexedDB not available')); return; }
+    const req = indexedDB.open(IMG_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('images');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbTx(mode, fn) {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('images', mode);
+    const store = tx.objectStore('images');
+    const out = fn(store);
+    tx.oncomplete = () => { db.close(); resolve(out && out.result !== undefined ? out.result : out); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+    tx.onabort = () => { db.close(); reject(tx.error); };
+  });
+}
+function idbPutImage(ym, dataUrl) { return idbTx('readwrite', s => s.put(dataUrl, ym)); }
+function idbDeleteImage(ym) { return idbTx('readwrite', s => s.delete(ym)); }
+function idbClearImages() { return idbTx('readwrite', s => s.clear()); }
+async function idbAllImages() {
+  const db = await idbOpen();
+  return new Promise((resolve, reject) => {
+    const out = {};
+    const tx = db.transaction('images', 'readonly');
+    const req = tx.objectStore('images').openCursor();
+    req.onsuccess = () => {
+      const c = req.result;
+      if (c) { out[c.key] = c.value; c.continue(); }
+    };
+    tx.oncomplete = () => { db.close(); resolve(out); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  });
+}
+async function persistAllImages() {
+  try {
+    await idbClearImages();
+    for (const [ym, url] of Object.entries(state.watchman_images || {})) {
+      if (url) await idbPutImage(ym, url);
+    }
+  } catch (e) { console.error(e); toast('Could not save photos: ' + e.message, 'error'); }
+}
+async function loadImagesFromDB() {
+  try {
+    const imgs = await idbAllImages();
+    state.watchman_images = Object.assign({}, imgs, state.watchman_images || {});
+  } catch (e) { console.error('image load', e); }
+}
+
+function getMeta() { try { return JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch (e) { return {}; } }
+function setMeta(patch) { try { localStorage.setItem(META_KEY, JSON.stringify({ ...getMeta(), ...patch })); } catch (e) {} }
+function getAI() { try { return JSON.parse(localStorage.getItem(AI_KEY_STORE)) || {}; } catch (e) { return {}; } }
+function setAI(patch) { try { localStorage.setItem(AI_KEY_STORE, JSON.stringify({ ...getAI(), ...patch })); } catch (e) {} }
+
+function hasAnyData() { return Object.keys(state.monthly || {}).length > 0 || Object.keys(state.readings || {}).length > 0; }
+
+/* ==================================================================== */
+/* SHARE / SAVE FILES — share sheet on phones, download on laptops       */
+/* ==================================================================== */
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+async function shareOrSave(blob, filename, title) {
+  try {
+    const file = new File([blob], filename, { type: blob.type });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title });
+      return 'shared';
+    }
+  } catch (e) {
+    if (e && e.name === 'AbortError') return 'cancelled';
+  }
+  downloadBlob(blob, filename);
+  return 'saved';
+}
+
+/* ==================================================================== */
+/* IMAGE HELPERS                                                        */
+/* ==================================================================== */
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Could not open this image'));
+    img.src = src;
+  });
+}
+/* Shrink big phone photos (12 MP → ~1800 px) so storage and AI reading stay fast */
+async function shrinkImage(dataUrl, maxSide = 1800, quality = 0.85) {
+  const img = await loadImage(dataUrl);
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+  if (scale === 1 && dataUrl.length < 900000) return dataUrl;
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * scale);
+  c.height = Math.round(img.height * scale);
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL('image/jpeg', quality);
+}
+
+/* ==================================================================== */
+/* AI METER-SHEET READER (Google Gemini vision)                         */
+/* ==================================================================== */
+const AI_DEFAULT_MODEL = 'gemini-flash-latest';
+const AI_FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+
+function normalizeFlat(raw) {
+  if (raw == null) return null;
+  let s = String(raw).toUpperCase().replace(/[\s\-_.:]/g, '');
+  s = s.replace(/^FLAT/, '');
+  if (FLATS.includes(s)) return s;
+  // Ground floor written as G1 / G-1 / GR1 / C1 / 61 / 601
+  let m = s.match(/^(?:G|GR|C|6)0?([1-6])$/);
+  if (m) return 'G0' + m[1];
+  m = s.match(/^([1-4])0?([1-6])$/);
+  if (m && FLATS.includes(m[1] + '0' + m[2])) return m[1] + '0' + m[2];
+  return null;
+}
+
+function median(arr) {
+  if (!arr.length) return 0;
+  const a = arr.slice().sort((x, y) => x - y);
+  const mid = Math.floor(a.length / 2);
+  return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+}
+
+/* Typical monthly meter increase for a flat, from the last 6 months on record */
+function typicalIncrease(flat, ym) {
+  const diffs = [];
+  let cur = prevMonth(ym);
+  for (let i = 0; i < 7 && cur; i++) {
+    const p = prevMonth(cur);
+    const a = state.readings[cur]?.[flat], b = state.readings[p]?.[flat];
+    if (a != null && b != null && a >= b) diffs.push(a - b);
+    cur = p;
+  }
+  return median(diffs);
+}
+
+/* Check every AI reading against last month & the flat's usual usage */
+function validateAIReadings(ym, aiMap, uncertainSet) {
+  const prev = state.readings[prevMonth(ym)] || {};
+  const rows = [];
+  FLATS.forEach(flat => {
+    const v = aiMap[flat];
+    const p = prev[flat];
+    const typ = typicalIncrease(flat, ym);
+    const reasons = [];
+    if (v == null) reasons.push('Not found on the sheet');
+    else {
+      if (p != null && v < p) reasons.push(`Lower than last month (${fmtNum(p)})`);
+      if (p != null && String(Math.round(v)).length !== String(Math.round(p)).length && Math.abs(v - p) > 2000)
+        reasons.push('Digit count differs from last month');
+      if (p != null && v >= p) {
+        const d = v - p;
+        const limit = Math.max(typ * 4, typ + 1500, 1500);
+        if (d > limit) reasons.push(`Very high use: +${fmtNum(d)} (usual ~${fmtNum(Math.round(typ))})`);
+      }
+      if (uncertainSet.has(flat)) reasons.push('AI was unsure of a digit');
+    }
+    rows.push({ flat, prev: p, value: v, usage: (v != null && p != null) ? (v - p) * 10 : null, reasons });
+  });
+  return rows;
+}
+
+function buildAIPrompt(ym) {
+  const prev = state.readings[prevMonth(ym)] || {};
+  const prevList = FLATS.map(f => `${f}: ${prev[f] != null ? prev[f] : 'unknown'}`).join(', ');
+  return `You are reading a photo of a handwritten water-meter register page from an Indian apartment building ("${state.config.society_name}").
+
+The page lists each flat's meter reading for ${ymToLabel(ym)}, written by the watchman as "<flat> - <reading>" (for example "203 - 48725").
+Valid flats (27): ${FLATS.join(', ')}.
+- Ground-floor flats G01–G06 are usually written like "G1", "G-1", "Gr 1", "C1" or "G01". Return them as G01…G06.
+- Readings are whole numbers, normally 4 to 6 digits.
+
+Rules:
+1. Read exactly what is written for each flat. Return one entry per flat that has a reading on the page.
+2. Ignore titles, dates, and any checklist column of flat numbers that has no reading or is crossed out.
+3. If a reading is struck through and a corrected value is written, use the corrected value.
+4. Find the water tanker count if it is on the page (e.g. "Tanker total 55 x 700 = 38500" → tankers_count 55, tanker_rate 700). If an amount is crossed out and rewritten, use the new one.
+5. Last month's readings are given ONLY to help you decide an unclear digit (meters only go up, usually by a small amount):
+   ${prevList}
+   Never copy last month's number; never invent a reading for a flat that is not on the page.
+6. Set "uncertain": true for any reading where a digit is smudged, overwritten or hard to read.`;
+}
+
+const AI_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    month_written: { type: 'STRING' },
+    readings: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          flat: { type: 'STRING' },
+          reading: { type: 'INTEGER' },
+          uncertain: { type: 'BOOLEAN' }
+        },
+        required: ['flat', 'reading']
+      }
+    },
+    tankers_count: { type: 'INTEGER', nullable: true },
+    tanker_rate: { type: 'INTEGER', nullable: true }
+  },
+  required: ['readings']
+};
+
+async function callGemini(model, key, prompt, b64) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`;
+  const body = {
+    contents: [{ role: 'user', parts: [{ text: prompt }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }],
+    generationConfig: { temperature: 0, responseMimeType: 'application/json', responseSchema: AI_SCHEMA }
+  };
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+    body: JSON.stringify(body)
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = json?.error?.message || res.statusText || 'Request failed';
+    const err = new Error(msg); err.status = res.status; throw err;
+  }
+  const text = (json.candidates?.[0]?.content?.parts || []).map(p => p.text || '').join('');
+  if (!text) throw new Error('The AI returned no answer (' + (json.candidates?.[0]?.finishReason || 'empty') + ')');
+  const cleaned = text.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+  return JSON.parse(cleaned);
+}
+
+function aiErrorText(err) {
+  const m = String(err.message || err);
+  if (err.status === 400 && /api key/i.test(m)) return 'The API key is not valid. Check it in Settings → AI reader.';
+  if (err.status === 403) return 'This API key is not allowed to use Gemini. Create a new key in Google AI Studio.';
+  if (err.status === 429) return 'Free daily limit reached for now. Try again later, or type the readings using split view.';
+  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'No internet connection — the AI reader needs internet.';
+  return m;
+}
+
+async function readSheetWithAI(ym, imageDataUrl, onStatus) {
+  const ai = getAI();
+  if (!ai.key) { const e = new Error('NO_KEY'); e.noKey = true; throw e; }
+  onStatus && onStatus('Preparing photo…');
+  const small = await shrinkImage(imageDataUrl, 1600, 0.88);
+  const b64 = small.split(',')[1];
+  const prompt = buildAIPrompt(ym);
+  const models = [...new Set([ai.model || AI_DEFAULT_MODEL, ...AI_FALLBACK_MODELS])];
+  let lastErr;
+  for (const model of models) {
+    try {
+      onStatus && onStatus('Reading the handwriting… (5–20 seconds)');
+      const out = await callGemini(model, ai.key, prompt, b64);
+      setAI({ lastModel: model });
+      return out;
+    } catch (e) {
+      lastErr = e;
+      // Model name not available → try the next one; anything else → stop
+      if (!(e.status === 404 || (e.status === 400 && /model/i.test(e.message || '')))) break;
+    }
+  }
+  throw lastErr;
+}
+
+function parseAIResult(out) {
+  const map = {}, uncertain = new Set();
+  (out.readings || []).forEach(r => {
+    const flat = normalizeFlat(r.flat);
+    const val = Number(String(r.reading).replace(/[^\d]/g, ''));
+    if (!flat || !val) return;
+    if (map[flat] == null || r.uncertain === false) map[flat] = val;
+    if (r.uncertain) uncertain.add(flat);
+  });
+  return { map, uncertain, tankers: out.tankers_count || null, rate: out.tanker_rate || null };
+}
+
+async function runAIReader() {
+  if (!entryState?.watchmanImage) { toast('Add the watchman\'s photo first', 'error'); return; }
+  const box = document.getElementById('ai-status');
+  const btn = document.getElementById('ai-run-btn');
+  const say = (html, kind = '') => { if (box) { box.className = 'ai-box ' + kind; box.style.display = 'block'; box.innerHTML = html; } };
+  if (btn) btn.disabled = true;
+  try {
+    const out = await readSheetWithAI(entryState.ym, entryState.watchmanImage, s => say('⏳ ' + s));
+    const parsed = parseAIResult(out);
+    const rows = validateAIReadings(entryState.ym, parsed.map, parsed.uncertain);
+    entryState.aiRows = rows;
+    entryState.aiTankers = parsed.tankers;
+    entryState.aiRate = parsed.rate;
+    const found = rows.filter(r => r.value != null).length;
+    const flagged = rows.filter(r => r.reasons.length).length;
+    say(`✓ Read <b>${found} of ${FLAT_COUNT}</b> readings${parsed.tankers ? ` and <b>${parsed.tankers} tankers</b>` : ''}. ${flagged ? `<b>${flagged}</b> need a quick check.` : 'All look normal.'}`, 'ok');
+    showAIReview();
+  } catch (e) {
+    if (e.noKey) { showAIKeyHelp(true); say('Set up the free AI reader once to read photos automatically.', ''); }
+    else { console.error(e); say('⚠ ' + aiErrorText(e) + '<br><span style="font-size:12px">You can still type readings using <b>Split view</b>.</span>', 'err'); }
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function showAIReview() {
+  const rows = entryState.aiRows || [];
+  const flagged = rows.filter(r => r.reasons.length);
+  const t = entryState.aiTankers;
+  showModal(`
+    <div class="modal-title">AI reading · ${ymToLabel(entryState.ym)}</div>
+    <p style="font-size:12.5px;color:var(--c-text-2);margin-bottom:10px;">
+      ${flagged.length ? `<b style="color:#b45309">${flagged.length} highlighted</b> — compare these with the photo after filling.` : 'Every reading passed the checks against last month.'}
+      ${t ? `<br>Tankers on sheet: <b>${t}</b>${entryState.aiRate ? ' × ₹' + entryState.aiRate : ''}` : ''}
+    </p>
+    <div class="ai-review-wrap">
+      <table class="ai-review">
+        <thead><tr><th>Flat</th><th style="text-align:right">Last month</th><th style="text-align:right">AI read</th><th style="text-align:right">Used (L)</th></tr></thead>
+        <tbody>
+          ${[...flagged, ...rows.filter(r => !r.reasons.length)].map(r => `
+            <tr class="${r.reasons.length ? 'flag' : ''}">
+              <td><b>${r.flat}</b>${r.reasons.map(x => `<span class="ai-reason">⚠ ${x}</span>`).join('')}</td>
+              <td class="num">${r.prev != null ? fmtNum(r.prev) : '—'}</td>
+              <td class="num"><b>${r.value != null ? r.value : '—'}</b></td>
+              <td class="num">${r.usage != null ? fmtNum(r.usage) : '—'}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="applyAIReadings()">✓ Fill ${rows.filter(r => r.value != null).length} readings${t ? ' + tankers' : ''}</button>
+    </div>
+  `);
+}
+
+function applyAIReadings() {
+  const rows = entryState.aiRows || [];
+  entryState.aiFlags = {};
+  rows.forEach(r => {
+    if (r.value != null) entryState.readings[r.flat] = r.value;
+    if (r.reasons.length) entryState.aiFlags[r.flat] = r.reasons.join(' · ');
+  });
+  if (entryState.aiTankers) entryState.water.tankers_count = entryState.aiTankers;
+  if (entryState.aiRate) entryState.water.tanker_rate = entryState.aiRate;
+  entryState.ocrResults = {};
+  closeModal();
+  if (Object.keys(entryState.aiFlags).length) entryState.splitView = true;
+  renderEntry();
+  const n = Object.keys(entryState.aiFlags).length;
+  toast(n ? `Filled. Check the ${n} highlighted flat${n > 1 ? 's' : ''} against the photo.` : 'All readings filled ✓', 'success');
+}
+
+function showAIFlag(flat) {
+  const why = entryState?.aiFlags?.[flat];
+  if (why) toast(`${flat}: ${why}`);
+}
+
+function showAIKeyHelp(fromEntry) {
+  const ai = getAI();
+  showModal(`
+    <div class="modal-title">🤖 AI reader setup (free, one time)</div>
+    <p style="font-size:13px;color:var(--c-text-2);">The AI reader uses Google's Gemini to read the watchman's handwriting. You need a free key:</p>
+    <ol class="key-steps">
+      <li>Open <b>aistudio.google.com</b> in Safari and sign in with your Google account.</li>
+      <li>Tap <b>Get API key</b> → <b>Create API key</b>.</li>
+      <li>Copy the key (starts with <b>AIza…</b>) and paste it below.</li>
+    </ol>
+    <div class="field"><label class="field-label">Gemini API key</label>
+      <input class="field-input" id="ai-key-input" value="${ai.key ? ai.key : ''}" placeholder="AIza…" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+    <p style="font-size:11.5px;color:var(--c-text-3);">The key is saved only on this phone and is never included in backups. On Google's free tier, photos may be used by Google to improve its AI — they only contain flat numbers and readings.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAIKey(${fromEntry ? 'true' : 'false'})">Save key</button>
+    </div>
+  `);
+}
+
+function saveAIKey(thenRun) {
+  const key = (document.getElementById('ai-key-input').value || '').trim();
+  if (!key) { toast('Paste the key first', 'error'); return; }
+  setAI({ key });
+  closeModal();
+  toast('AI reader ready ✓', 'success');
+  if (state.ui.current_page === 'settings') renderSettings();
+  if (thenRun && entryState?.watchmanImage) runAIReader();
+}
+
+async function testAIKey() {
+  const ai = getAI();
+  if (!ai.key) { showAIKeyHelp(false); return; }
+  toast('Testing key…');
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(ai.model || AI_DEFAULT_MODEL)}:generateContent`;
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': ai.key },
+      body: JSON.stringify({ contents: [{ parts: [{ text: 'Reply with the single word OK' }] }] }) });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) { const e = new Error(j?.error?.message || res.statusText); e.status = res.status; throw e; }
+    toast('Key works ✓', 'success');
+  } catch (e) { toast(aiErrorText(e), 'error'); }
+}
+
+function removeAIKey() {
+  if (!confirm('Remove the AI key from this phone?')) return;
+  setAI({ key: '' });
+  renderSettings();
+}
+
+/* ==================================================================== */
+/* INSTALL / BACKUP REMINDERS                                           */
+/* ==================================================================== */
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const isStandalone = () => (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+let persistedStorage = null;
+
+function needsBackup() {
+  const m = getMeta();
+  if (!hasAnyData() || !m.lastChange) return false;
+  if (!m.lastBackup) return true;
+  return m.lastChange > m.lastBackup && (Date.now() - m.lastBackup) > 7 * 86400000;
+}
+function bannersHTML() {
+  let h = '';
+  if (!isStandalone() && !getMeta().tipDismissed && window.innerWidth <= 820) {
+    h += `<div class="m-banner tip"><div class="mb-icon">📲</div><div class="mb-body"><b>Install as an app</b><div>${isIOS ? 'Tap <b>Share ⬆</b> → <b>Add to Home Screen</b> (keep "Open as Web App" on).' : 'Tap <b>⋮</b> → <b>Add to Home screen</b>.'} Then always open it from the icon — your data stays safely on this phone.</div>
+      <div class="mb-actions"><button class="btn btn-secondary btn-small" onclick="setMeta({tipDismissed:true}); renderDashboard();">Got it</button></div></div></div>`;
+  }
+  if (needsBackup()) {
+    const m = getMeta();
+    h += `<div class="m-banner warn"><div class="mb-icon">⚠️</div><div class="mb-body"><b>${m.lastBackup ? 'Time for a fresh backup' : 'No backup yet'}</b><div>Your data lives only on this phone. Save a copy to iCloud Drive / WhatsApp / Drive.</div>
+      <div class="mb-actions"><button class="btn btn-primary btn-small" onclick="downloadBackup()">Back up now</button></div></div></div>`;
+  }
+  return h;
+}
+async function requestPersist() {
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      persistedStorage = (await navigator.storage.persisted()) || (await navigator.storage.persist());
+    } else persistedStorage = false;
+  } catch (e) { persistedStorage = false; }
+}
+
+function makeAppIcon() {
+  try {
+    const c = document.createElement('canvas');
+    c.width = c.height = 512;
+    const g = c.getContext('2d');
+    const grd = g.createLinearGradient(0, 0, 512, 512);
+    grd.addColorStop(0, '#0f172a'); grd.addColorStop(0.6, '#1e3a5f'); grd.addColorStop(1, '#0f766e');
+    g.fillStyle = grd; g.fillRect(0, 0, 512, 512);
+    g.fillStyle = '#14b8a6';
+    g.beginPath(); g.roundRect ? g.roundRect(136, 116, 240, 240, 56) : g.rect(136, 116, 240, 240); g.fill();
+    g.fillStyle = '#ffffff';
+    g.font = '700 170px -apple-system, "Segoe UI", Arial, sans-serif';
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('L', 256, 244);
+    g.fillStyle = 'rgba(255,255,255,.85)';
+    g.font = '600 44px -apple-system, "Segoe UI", Arial, sans-serif';
+    g.fillText('PARIMAL', 256, 420);
+    const url = c.toDataURL('image/png');
+    document.getElementById('touch-icon').href = url;
+    const base = location.href.split('#')[0].split('?')[0];
+    const manifest = {
+      name: 'Lotus Parimal Maintenance', short_name: 'Lotus Parimal',
+      start_url: base, scope: base.replace(/[^/]*$/, ''), display: 'standalone',
+      background_color: '#eef2f7', theme_color: '#0f172a',
+      icons: [{ src: url, sizes: '512x512', type: 'image/png' }]
+    };
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+    document.head.appendChild(link);
+  } catch (e) {}
+}
+
+/* ==================================================================== */
+/* ROUTING                                                              */
+/* ==================================================================== */
+function navigate(page) {
+  state.ui.current_page = page;
+  document.querySelectorAll('.nav-tab, .bn-btn').forEach(t => {
+    t.classList.toggle('active', t.dataset.page === page);
+  });
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.toggle('active', p.id === 'page-' + page);
+  });
+
+  if (page === 'dashboard') renderDashboard();
+  else if (page === 'entry') renderEntry();
+  else if (page === 'collection') renderCollection();
+  else if (page === 'history') renderHistory();
+  else if (page === 'readings') renderReadings();
+  else if (page === 'settings') renderSettings();
+
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll('.nav-tab, .bn-btn').forEach(tab => {
+  tab.addEventListener('click', () => navigate(tab.dataset.page));
+});
+
+/* ==================================================================== */
+/* INIT                                                                 */
+/* ==================================================================== */
+(async function init() {
+  initState();
+  document.querySelector('.brand-name').textContent = state.config.society_name;
+  if (state.__migrateImages) {
+    delete state.__migrateImages;
+    await persistAllImages();
+    saveState();               // rewrites localStorage without the photos
+  } else {
+    await loadImagesFromDB();
+  }
+  navigate('dashboard');
+  makeAppIcon();
+  requestPersist();
+  console.log('Lotus Parimal Maintenance Tracker · ready');
+})();
+</script>
+
+</body>
+</html>
