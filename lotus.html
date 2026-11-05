@@ -3006,10 +3006,10 @@ function downloadBackup() {
     backup_version: 2, created: new Date().toISOString()
   }, null, 2)], { type: 'application/json' });
   shareOrSave(blob, `lotus_parimal_backup_${new Date().toISOString().slice(0,10)}.json`, 'Lotus Parimal backup').then(r => {
-    if (r === 'cancelled') return;
+    if (r === 'cancelled') { toast('Backup not saved (closed)'); return; }
     setMeta({ lastBackup: Date.now() });
     toast(r === 'shared' ? 'Backup shared ✓' : 'Backup saved ✓', 'success');
-    if (state.ui.current_page === 'settings') renderSettings();
+    refreshAfterBackup();
   });
 }
 function uploadBackup() {
@@ -3274,7 +3274,9 @@ function downloadBlob(blob, filename) {
 }
 async function shareOrSave(blob, filename, title) {
   try {
-    const file = new File([blob], filename, { type: blob.type });
+    let file = new File([blob], filename, { type: blob.type });
+    if (navigator.canShare && !navigator.canShare({ files: [file] }) && blob.type === 'application/json')
+      file = new File([blob], filename, { type: 'text/plain' });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({ files: [file], title });
       return 'shared';
@@ -3316,12 +3318,15 @@ async function shrinkImage(dataUrl, maxSide = 1800, quality = 0.85) {
 /* AI METER-SHEET READER (Google Gemini vision)                         */
 /* ==================================================================== */
 const AI_DEFAULT_MODEL = 'gemini-flash-latest';
-const AI_FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+// Tried in order; when Google says a model is busy, the next one is used automatically
+const AI_FALLBACK_MODELS = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-flash-lite-latest', 'gemini-2.5-flash-lite', 'gemini-2.0-flash'];
 
 function normalizeFlat(raw) {
   if (raw == null) return null;
   let s = String(raw).toUpperCase().replace(/[\s\-_.:]/g, '');
   s = s.replace(/^FLAT/, '');
+  // common OCR slips: l / I / | for 1, O for 0
+  s = s.replace(/^([GC]?)([0-9LI|OSZB]{1,3})$/, (m, a, b) => a + b.replace(/[LI|]/g, '1').replace(/O/g, '0').replace(/S/g, '5').replace(/Z/g, '2').replace(/B/g, '8'));
   if (FLATS.includes(s)) return s;
   // Ground floor written as G1 / G-1 / GR1 / C1 / 61 / 601
   let m = s.match(/^(?:G|GR|C|6)0?([1-6])$/);
@@ -3446,9 +3451,19 @@ function aiErrorText(err) {
   const m = String(err.message || err);
   if (err.status === 400 && /api key/i.test(m)) return 'The API key is not valid. Check it in Settings → AI reader.';
   if (err.status === 403) return 'This API key is not allowed to use Gemini. Create a new key in Google AI Studio.';
-  if (err.status === 429) return 'Free daily limit reached for now. Try again later, or type the readings using split view.';
+  if (err.status === 429) return 'Google\'s free limit is used up for now — try again in a while.';
+  if (isBusyError(err)) return 'Google AI is busy right now — try again in a few minutes.';
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'No internet connection — the AI reader needs internet.';
   return m;
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function isBusyError(e) {
+  return [429, 500, 502, 503, 504].includes(e.status) ||
+         /high demand|overloaded|unavailable|try again later|resource.?exhausted|deadline/i.test(e.message || '');
+}
+function isModelMissing(e) {
+  return e.status === 404 || (e.status === 400 && /model/i.test(e.message || '') && !/api key/i.test(e.message || ''));
 }
 
 async function readSheetWithAI(ym, imageDataUrl, onStatus) {
@@ -3458,21 +3473,87 @@ async function readSheetWithAI(ym, imageDataUrl, onStatus) {
   const small = await shrinkImage(imageDataUrl, 1600, 0.88);
   const b64 = small.split(',')[1];
   const prompt = buildAIPrompt(ym);
-  const models = [...new Set([ai.model || AI_DEFAULT_MODEL, ...AI_FALLBACK_MODELS])];
-  let lastErr;
+  const models = [...new Set([ai.lastModel, ai.model || AI_DEFAULT_MODEL, ...AI_FALLBACK_MODELS].filter(Boolean))];
+  let lastErr, tries = 0;
   for (const model of models) {
-    try {
-      onStatus && onStatus('Reading the handwriting… (5–20 seconds)');
-      const out = await callGemini(model, ai.key, prompt, b64);
-      setAI({ lastModel: model });
-      return out;
-    } catch (e) {
-      lastErr = e;
-      // Model name not available → try the next one; anything else → stop
-      if (!(e.status === 404 || (e.status === 400 && /model/i.test(e.message || '')))) break;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        tries++;
+        onStatus && onStatus(tries === 1 ? 'Reading the sheet… (5–20 seconds)' : `Google is busy — trying again (${tries})…`);
+        const out = await callGemini(model, ai.key, prompt, b64);
+        setAI({ lastModel: model });
+        return out;
+      } catch (e) {
+        lastErr = e;
+        if (isModelMissing(e)) break;                 // try the next model
+        if (!isBusyError(e)) throw e;                 // bad key, no internet, etc.
+        if (attempt === 0) await sleep(2500);         // short wait, retry same model once
+      }
     }
   }
   throw lastErr;
+}
+
+/* ==================================================================== */
+/* ON-PHONE READER (free, no key) — good for typed/printed sheets        */
+/* ==================================================================== */
+let tesseractLoading = null;
+function loadTesseract() {
+  if (window.Tesseract) return Promise.resolve();
+  if (!tesseractLoading) {
+    tesseractLoading = new Promise((resolve, reject) => {
+      const sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+      sc.onload = () => resolve();
+      sc.onerror = () => { tesseractLoading = null; reject(new Error('Could not download the on-phone reader (needs internet the first time)')); };
+      document.head.appendChild(sc);
+    });
+  }
+  return tesseractLoading;
+}
+async function prepForOCR(dataUrl) {
+  const img = await loadImage(dataUrl);
+  const target = Math.max(img.width, 1800);
+  const scale = Math.min(4, target / img.width);
+  const c = document.createElement('canvas');
+  c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(img, 0, 0, c.width, c.height);
+  const d = g.getImageData(0, 0, c.width, c.height), px = d.data;
+  for (let i = 0; i < px.length; i += 4) {                 // grayscale + contrast
+    let v = 0.299 * px[i] + 0.587 * px[i + 1] + 0.114 * px[i + 2];
+    v = v > 200 ? 255 : v < 90 ? 0 : (v - 90) * 255 / 110;
+    px[i] = px[i + 1] = px[i + 2] = v;
+  }
+  g.putImageData(d, 0, 0);
+  return c.toDataURL('image/png');
+}
+function parseOCRText(text) {
+  const map = {};
+  const re = /(?:^|[^A-Za-z0-9])([GgCc][0-9lI|OoSsZzB]{1,2}|[0-9lI|Oo]{3})\s*[-–—:.=)]*\s*(\d{4,6})(?!\d)/g;
+  text.split(/\n/).forEach(line => {
+    let m;
+    re.lastIndex = 0;
+    while ((m = re.exec(line))) {
+      const flat = normalizeFlat(m[1]);
+      if (flat && map[flat] == null) map[flat] = Number(m[2]);
+    }
+  });
+  return map;
+}
+async function readSheetOnPhone(imageDataUrl, onStatus) {
+  onStatus && onStatus('Loading on-phone reader…');
+  await loadTesseract();
+  const src = await prepForOCR(imageDataUrl);
+  onStatus && onStatus('Reading on this phone… (10–30 seconds)');
+  const worker = await Tesseract.createWorker('eng');
+  try {
+    await worker.setParameters({ tessedit_pageseg_mode: '6' });
+    const { data } = await worker.recognize(src);
+    return parseOCRText(data.text || '');
+  } finally { worker.terminate(); }
 }
 
 function parseAIResult(out) {
@@ -3493,20 +3574,43 @@ async function runAIReader() {
   const btn = document.getElementById('ai-run-btn');
   const say = (html, kind = '') => { if (box) { box.className = 'ai-box ' + kind; box.style.display = 'block'; box.innerHTML = html; } };
   if (btn) btn.disabled = true;
-  try {
-    const out = await readSheetWithAI(entryState.ym, entryState.watchmanImage, s => say('⏳ ' + s));
-    const parsed = parseAIResult(out);
-    const rows = validateAIReadings(entryState.ym, parsed.map, parsed.uncertain);
-    entryState.aiRows = rows;
-    entryState.aiTankers = parsed.tankers;
-    entryState.aiRate = parsed.rate;
+  const finish = (map, uncertain, tankers, rate, source) => {
+    const rows = validateAIReadings(entryState.ym, map, uncertain);
+    entryState.aiRows = rows; entryState.aiTankers = tankers; entryState.aiRate = rate; entryState.aiSource = source;
     const found = rows.filter(r => r.value != null).length;
     const flagged = rows.filter(r => r.reasons.length).length;
-    say(`✓ Read <b>${found} of ${FLAT_COUNT}</b> readings${parsed.tankers ? ` and <b>${parsed.tankers} tankers</b>` : ''}. ${flagged ? `<b>${flagged}</b> need a quick check.` : 'All look normal.'}`, 'ok');
+    say(`✓ ${source}: read <b>${found} of ${FLAT_COUNT}</b> readings${tankers ? ` and <b>${tankers} tankers</b>` : ''}. ${flagged ? `<b>${flagged}</b> need a quick check.` : 'All look normal.'}`, 'ok');
     showAIReview();
+  };
+  const onPhone = async (why) => {
+    const map = await readSheetOnPhone(entryState.watchmanImage, s => say('⏳ ' + (why ? why + '<br>' : '') + s));
+    const n = Object.keys(map).length;
+    if (n < 5) {
+      const e = new Error('OFFLINE_WEAK'); e.found = n; throw e;
+    }
+    finish(map, new Set(), null, null, 'On-phone reader');
+  };
+  try {
+    if (!getAI().key) {
+      await onPhone('No AI key set — using the free on-phone reader.');
+    } else {
+      try {
+        const out = await readSheetWithAI(entryState.ym, entryState.watchmanImage, s => say('⏳ ' + s));
+        const parsed = parseAIResult(out);
+        finish(parsed.map, parsed.uncertain, parsed.tankers, parsed.rate, 'AI reader');
+      } catch (e) {
+        if (!(isBusyError(e) || /Failed to fetch|NetworkError|Load failed/i.test(e.message || ''))) throw e;
+        await onPhone('Google AI is busy right now — switching to the on-phone reader.');
+      }
+    }
   } catch (e) {
-    if (e.noKey) { showAIKeyHelp(true); say('Set up the free AI reader once to read photos automatically.', ''); }
-    else { console.error(e); say('⚠ ' + aiErrorText(e) + '<br><span style="font-size:12px">You can still type readings using <b>Split view</b>.</span>', 'err'); }
+    console.error(e);
+    if (e.message === 'OFFLINE_WEAK') {
+      say(`⚠ The on-phone reader could only read ${e.found} readings — it works best on typed sheets, not handwriting.<br>
+           <span style="font-size:12px">${getAI().key ? 'Google AI was busy: tap <b>Read readings with AI</b> again in a few minutes,' : '<a href="#" onclick="showAIKeyHelp(true);return false;">Set up the free AI reader</a> for handwriting,'} or type them using <b>Split view</b>.</span>`, 'err');
+    } else {
+      say('⚠ ' + aiErrorText(e) + '<br><span style="font-size:12px">You can still type readings using <b>Split view</b>.</span>', 'err');
+    }
   } finally {
     if (btn) btn.disabled = false;
   }
@@ -3517,7 +3621,7 @@ function showAIReview() {
   const flagged = rows.filter(r => r.reasons.length);
   const t = entryState.aiTankers;
   showModal(`
-    <div class="modal-title">AI reading · ${ymToLabel(entryState.ym)}</div>
+    <div class="modal-title">${entryState.aiSource || 'AI reading'} · ${ymToLabel(entryState.ym)}</div>
     <p style="font-size:12.5px;color:var(--c-text-2);margin-bottom:10px;">
       ${flagged.length ? `<b style="color:#b45309">${flagged.length} highlighted</b> — compare these with the photo after filling.` : 'Every reading passed the checks against last month.'}
       ${t ? `<br>Tankers on sheet: <b>${t}</b>${entryState.aiRate ? ' × ₹' + entryState.aiRate : ''}` : ''}
@@ -3627,6 +3731,11 @@ function needsBackup() {
   if (!hasAnyData() || !m.lastChange) return false;
   if (!m.lastBackup) return true;
   return m.lastChange > m.lastBackup && (Date.now() - m.lastBackup) > 7 * 86400000;
+}
+function refreshAfterBackup() {
+  const pg = state.ui.current_page;
+  if (pg === 'dashboard') renderDashboard();
+  else if (pg === 'settings') renderSettings();
 }
 function bannersHTML() {
   let h = '';
