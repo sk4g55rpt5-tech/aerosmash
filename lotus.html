@@ -1267,6 +1267,7 @@ body { overscroll-behavior-y: none; }
 
 .exp-group { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #9a3412; padding: 10px 0 4px; border-bottom: 1.5px solid #fed7aa; }
 .exp-group:first-child { padding-top: 0; }
+.sum-tip { font-size: 12px; color: #1e3a8a; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 10px 12px; margin-top: 4px; }
 .rc-sub { font-size: 11.5px; color: var(--c-text-3); margin-top: 4px; line-height: 1.4; }
 /* Electricity split */
 .elec-box { background: #fefce8; border: 1px solid #fde68a; border-radius: 12px; padding: 12px; margin-bottom: 12px; }
@@ -1861,7 +1862,7 @@ function updateElecSplitNote() {
     (Number(t) < s.pump ? ' <span class="warn">· bill is less than ₹' + s.pump.toLocaleString('en-IN') + '</span>' : '');
 }
 /* Home-page breakdown: Common Expenses vs Repairs & One-time Expenses */
-const COMMON_GROUP_RE = /watchman|electric|pump|dustbin|tanker|diesel/i;
+const COMMON_GROUP_RE = /watchman\s*sal|salary|electric|pump|dustbin|tanker|diesel/i;
 function renderExpenseGroups(calc) {
   const r = calc.reconciliation;
   const line = (name, amount, est) => `<div class="exp-line"><span class="exp-l">${name}${est != null && Number(est) !== Number(amount) ? ` <span class="exp-est">est. ${fmtINR(est)}</span>` : ''}</span><span class="exp-v">${fmtINR(amount)}</span></div>`;
@@ -3512,72 +3513,125 @@ function resetData() {
 /* ==================================================================== */
 /* EXPORT TO PNG                                                        */
 /* ==================================================================== */
+let summaryParts = [];          // [{blob, name, url, w, h}]
 let lastSummaryBlob = null;
-async function shareSummaryImage() {
-  if (!lastSummaryBlob) return;
-  const r = await shareOrSave(lastSummaryBlob, `Lotus_Parimal_${state.ui.selected_month}_summary.png`, `${state.config.society_name} · ${ymToLabel(state.ui.selected_month)}`);
-  if (r !== 'cancelled') toast(r === 'shared' ? 'Shared ✓' : 'Image saved ✓', 'success');
+const SUMMARY_TARGET_PX = 3840;  // 4K width
+const IOS_MAX_PIXELS = 16000000; // iPhone Safari refuses canvases above ~16.7 MP
+
+function loadScriptOnce(src, test) {
+  if (test()) return Promise.resolve();
+  return new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src;
+    s.onload = () => res(); s.onerror = () => rej(new Error('Could not load ' + src.split('/').pop() + ' (needs internet once)'));
+    document.head.appendChild(s);
+  });
 }
+
+/* part 1 = header + flat-wise bills, part 2 = expenses / reconciliation */
+function summaryClone(part, monthLabel) {
+  return clonedDoc => {
+    const style = clonedDoc.createElement('style');
+    style.textContent = `
+      *, *::before, *::after { animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important; }
+      #summary-printable { width: 1196px !important; padding: 0 !important; }
+      .m-banner, [data-no-print] { display: none !important; }
+      body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+      .part2-head { display: flex; justify-content: space-between; align-items: center; padding: 18px 22px; margin-bottom: 14px;
+        border-radius: 16px; color: #fff; background: linear-gradient(135deg, #0f172a, #1e3a5f 60%, #0f766e); font-family: inherit; }
+      .part2-head b { font-size: 22px; letter-spacing: -.3px; } .part2-head span { font-size: 13px; opacity: .8; }`;
+    clonedDoc.head.appendChild(style);
+    const root = clonedDoc.getElementById('summary-printable');
+    const kids = [...root.children];
+    const split = kids.findIndex(k => k.classList.contains('three-up'));
+    kids.forEach((k, i) => { if ((part === 1 && i >= split) || (part === 2 && i < split)) k.style.display = 'none'; });
+    if (part === 2) {
+      const h = clonedDoc.createElement('div');
+      h.className = 'part2-head';
+      h.innerHTML = `<b>${state.config.society_name} · ${monthLabel}</b><span>Expenses &amp; reconciliation · page 2 of 2</span>`;
+      root.insertBefore(h, root.firstChild);
+    }
+  };
+}
+
+async function renderSummaryPart(target, part, monthLabel) {
+  const base = { backgroundColor: '#eef2f7', useCORS: true, logging: false, windowWidth: 1240, width: 1196, onclone: summaryClone(part, monthLabel) };
+  const probe = await html2canvas(target, { ...base, scale: 0.25 });          // cheap pass to learn the height
+  const cssH = probe.height / 0.25, cssW = 1196;
+  let scale = SUMMARY_TARGET_PX / cssW;
+  scale = Math.min(scale, Math.sqrt(IOS_MAX_PIXELS / (cssW * cssH)));
+  const canvas = await html2canvas(target, { ...base, scale });
+  return canvas;
+}
+
 async function downloadSummaryPNG() {
-  toast('Generating image…');
   const target = document.getElementById('summary-printable');
   if (!target) { toast('Nothing to export', 'error'); return; }
-
-  // Hide the action buttons during capture
+  if (typeof html2canvas === 'undefined') { toast('Image library not loaded — needs internet once', 'error'); return; }
+  const ym = state.ui.selected_month, label = ymToLabel(ym);
+  toast('Creating 4K images… (5–15 seconds)');
   document.querySelectorAll('[data-no-print]').forEach(el => el.style.display = 'none');
-
-  // Wait for any pending animations to settle
-  await new Promise(resolve => setTimeout(resolve, 600));
-
+  await new Promise(r => setTimeout(r, 400));
   try {
-    if (typeof html2canvas === 'undefined') throw new Error('Image library not loaded — needs internet once');
-    const canvas = await html2canvas(target, {
-      scale: 2,
-      backgroundColor: '#eef2f7',
-      useCORS: true,
-      logging: false,
-      windowWidth: 1240,
-      width: 1196,
-      // CRITICAL: Disable animations in the cloned DOM so all cards render fully
-      onclone: (clonedDoc) => {
-        const style = clonedDoc.createElement('style');
-        style.textContent = `
-          *, *::before, *::after {
-            animation: none !important;
-            animation-delay: 0s !important;
-            animation-duration: 0s !important;
-            animation-fill-mode: forwards !important;
-            transition: none !important;
-            opacity: 1 !important;
-            transform: none !important;
-          }
-          .flat-card, .recon-cell, .amc-mini {
-            opacity: 1 !important;
-            transform: none !important;
-          }
-          #summary-printable { width: 1196px !important; padding: 0 !important; }
-          .m-banner { display: none !important; }
-        `;
-        clonedDoc.head.appendChild(style);
-      }
-    });
-    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    lastSummaryBlob = blob;
-    const url = URL.createObjectURL(blob);
+    summaryParts.forEach(p => URL.revokeObjectURL(p.url));
+    summaryParts = [];
+    for (const part of [1, 2]) {
+      const canvas = await renderSummaryPart(target, part, label);
+      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      if (!blob) throw new Error('This phone could not create such a large image');
+      const name = `Lotus_Parimal_${ym}_${part === 1 ? '1_flat_bills' : '2_expenses'}.png`;
+      summaryParts.push({ blob, name, url: URL.createObjectURL(blob), w: canvas.width, h: canvas.height, canvas });
+    }
+    lastSummaryBlob = summaryParts[0].blob;
     showModal(`
-      <div class="modal-title">Summary image · ${ymToLabel(state.ui.selected_month)}</div>
-      <img class="img-preview" src="${url}" alt="summary">
-      <div style="font-size:12px;color:var(--c-text-3);text-align:center;">Tip: long-press the image to save it to Photos.</div>
+      <div class="modal-title">Summary · ${label}</div>
+      <div style="font-size:12px;color:var(--c-text-3);margin-bottom:8px;">${summaryParts.map((p, i) => `Page ${i + 1}: ${p.w} × ${p.h} px`).join(' · ')}</div>
+      ${summaryParts.map(p => `<img class="img-preview" src="${p.url}" alt="${p.name}">`).join('')}
+      <div class="sum-tip">💡 In WhatsApp, tap <b>HD</b> before sending the images — otherwise WhatsApp shrinks them. Or send the <b>PDF</b>: WhatsApp never shrinks documents.</div>
       <div class="modal-actions">
         <button class="btn btn-ghost" onclick="closeModal()">Close</button>
-        <button class="btn btn-secondary" onclick="downloadBlob(lastSummaryBlob, 'Lotus_Parimal_${state.ui.selected_month}_summary.png')">⬇ Save</button>
-        <button class="btn btn-primary" onclick="shareSummaryImage()">📤 Share to WhatsApp</button>
+        <button class="btn btn-secondary" onclick="shareSummaryPDF()">📄 Share as PDF</button>
+        <button class="btn btn-primary" onclick="shareSummaryImage()">📤 Share 2 images (4K)</button>
       </div>`);
   } catch (err) {
+    console.error(err);
     toast('Export failed: ' + err.message, 'error');
   } finally {
     document.querySelectorAll('[data-no-print]').forEach(el => el.style.display = '');
   }
+}
+
+async function shareSummaryImage() {
+  if (!summaryParts.length) return;
+  const files = summaryParts.map(p => new File([p.blob], p.name, { type: 'image/png' }));
+  try {
+    if (navigator.canShare && navigator.canShare({ files })) {
+      await navigator.share({ files, title: `${state.config.society_name} · ${ymToLabel(state.ui.selected_month)}` });
+      toast('Shared ✓', 'success'); return;
+    }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  summaryParts.forEach(p => downloadBlob(p.blob, p.name));
+  toast('Images saved ✓', 'success');
+}
+
+async function shareSummaryPDF() {
+  if (!summaryParts.length) return;
+  try {
+    toast('Creating PDF…');
+    await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', () => !!(window.jspdf && window.jspdf.jsPDF));
+    const { jsPDF } = window.jspdf;
+    const W = 210;                                    // A4 width in mm, page height follows each image
+    let pdf = null;
+    summaryParts.forEach(p => {
+      const H = W * p.h / p.w;
+      if (!pdf) pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [W, H], compress: true });
+      else pdf.addPage([W, H], 'portrait');
+      pdf.addImage(p.canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, W, H, undefined, 'FAST');
+    });
+    const ym = state.ui.selected_month;
+    const blob = pdf.output('blob');
+    const r = await shareOrSave(new Blob([blob], { type: 'application/pdf' }), `Lotus_Parimal_${ym}_summary.pdf`, `${state.config.society_name} · ${ymToLabel(ym)}`);
+    if (r !== 'cancelled') toast(r === 'shared' ? 'PDF shared ✓' : 'PDF saved ✓', 'success');
+  } catch (e) { console.error(e); toast('PDF failed: ' + e.message, 'error'); }
 }
 
 /* ==================================================================== */
