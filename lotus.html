@@ -1875,7 +1875,7 @@ function renderExpenseGroups(calc) {
     if (elec.length) {
       const amt = sumAmounts(elec), est = elec.every(e => e.estimated != null) ? sumAmounts(elec, 'estimated') : null;
       const at = common.findIndex(c => /dustbin|diesel/i.test(c.name));
-      const item = { name: 'Electricity Bill', amount: amt, est };
+      const item = { name: 'Electricity Bill', amount: amt, est: null };   // no estimate shown
       at >= 0 ? common.splice(at, 0, item) : common.push(item);
     }
   } else {
