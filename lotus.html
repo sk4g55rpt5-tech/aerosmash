@@ -1224,6 +1224,47 @@ html { -webkit-text-size-adjust: 100%; }
 body { overscroll-behavior-y: none; }
 .topnav { padding-top: calc(14px + var(--safe-t)); }
 
+/* Actual vs estimated expenses */
+.act-empty { margin-top: 14px; padding: 12px 14px; border: 1px dashed var(--c-border-2, #cbd5e1); border-radius: 10px; font-size: 12.5px; color: var(--c-text-2); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.act-box { margin-top: 14px; padding: 12px; border: 1px solid #bfdbfe; background: #f8fbff; border-radius: 12px; }
+.act-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #1e3a8a; margin-bottom: 8px; }
+.act-hint { font-size: 11px; font-weight: 500; text-transform: none; letter-spacing: 0; color: var(--c-text-3); }
+.act-row { display: grid; grid-template-columns: 1fr 120px 36px; gap: 8px; align-items: start; margin-bottom: 8px; }
+.act-est { font-size: 11px; color: var(--c-text-3); margin: 3px 0 0 4px; }
+.act-amt.changed { border-color: #f59e0b; background: #fffbeb; font-weight: 700; }
+.act-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+.act-totals > div { background: white; border: 1px solid var(--c-border); border-radius: 10px; padding: 8px 10px; display: flex; flex-direction: column; font-size: 11px; color: var(--c-text-3); }
+.act-totals b { font-size: 15px; color: var(--c-text-1, #0f172a); margin-top: 2px; }
+.act-totals .over b { color: #b91c1c; } .act-totals .under b { color: #047857; }
+.exp-est { font-size: 11px; color: var(--c-text-3); font-weight: 500; margin-left: 4px; text-decoration: line-through; }
+.exp-vs .exp-l { font-style: italic; color: var(--c-text-3); }
+.exp-v.over { color: #b91c1c; } .exp-v.under { color: #047857; }
+@media (max-width: 820px) {
+  .act-row { grid-template-columns: 1fr 112px 36px; grid-template-areas: "name name name" "est amt del"; row-gap: 4px; padding-bottom: 8px; border-bottom: 1px dashed #dbe4f0; }
+  .act-left { display: contents; }
+  .act-left .act-name { grid-area: name; }
+  .act-left .act-est { grid-area: est; align-self: center; margin: 0; font-size: 12px; }
+  .act-row .act-amt { grid-area: amt; }
+  .act-row .btn-icon { grid-area: del; }
+  .act-totals b { font-size: 13px; }
+}
+
+/* Linked fields & data check */
+.field-input.linked { background: #f0fdfa; border-color: #99f6e4; }
+.link-note { font-size: 11.5px; color: var(--c-text-3); margin-top: 5px; line-height: 1.45; }
+.link-note a { color: var(--c-teal-1, #0f766e); font-weight: 600; }
+.link-note .warn { color: #b45309; font-weight: 600; }
+.act-amt.fixed { background: #f1f5f9; color: var(--c-text-2); }
+.fixed-tag { font-size: 10px; font-weight: 700; color: var(--c-text-3); align-self: center; text-transform: uppercase; letter-spacing: .5px; }
+.dc-card { grid-column: 1 / -1; }
+.dc-row { display: flex; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; margin-top: 8px; font-size: 12.5px; }
+.dc-row.warn { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; }
+.dc-row.info { background: #f8fafc; border: 1px solid var(--c-border); color: var(--c-text-2); }
+.dc-row.ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+.dc-row .btn { flex: none; }
+.dc-sub { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--c-text-3); font-weight: 700; margin-top: 14px; }
+@media (max-width: 820px) { .act-row .fixed-tag { grid-area: del; text-align: center; } }
+
 /* Bottom navigation (phones) */
 .bottomnav {
   display: none;
@@ -1515,6 +1556,7 @@ document.addEventListener('click', e => {
 /* STORAGE                                                              */
 /* ==================================================================== */
 function saveState() {
+  try { syncLinks(); } catch (e) { console.error('link sync', e); }
   try {
     const toSave = {
       config: state.config,
@@ -1684,7 +1726,10 @@ function calculateMonth(ym) {
   const r = monthData.reconciliation || {};
   const totalCollection = (r.monthly_collection || 0) + (r.balance_from_last || 0);
   const extraExpensesTotal = (r.extra_expenses || []).reduce((s, e) => s + (Number(e.amount) || 0), 0);
-  const totalExpenditure = (r.prev_expense_base || 0) + extraExpensesTotal;
+  const actualLines = (r.actual_expenses && r.actual_expenses.length) ? r.actual_expenses : null;
+  const expenseBase = actualLines ? sumAmounts(actualLines) : (r.prev_expense_base || 0);
+  const estimatedBase = actualLines ? sumAmounts(actualLines, 'estimated') : null;
+  const totalExpenditure = expenseBase + extraExpensesTotal;
   const carriedForward = totalCollection - totalExpenditure;
 
   return {
@@ -1702,7 +1747,9 @@ function calculateMonth(ym) {
       monthly_collection: r.monthly_collection || 0,
       balance_from_last: r.balance_from_last || 0,
       total_collection: totalCollection,
-      prev_expense_base: r.prev_expense_base || 0,
+      prev_expense_base: expenseBase,
+      actual_expenses: actualLines,
+      estimated_base: estimatedBase,
       extra_expenses: r.extra_expenses || [],
       extra_expenses_total: extraExpensesTotal,
       total_expenditure: totalExpenditure,
@@ -1710,6 +1757,57 @@ function calculateMonth(ym) {
     }
   };
 }
+
+/* ---- Month-to-month links ------------------------------------------
+   balance_linked:    "Balance from earlier" = previous month's closing balance
+   collection_linked: "Monthly collection"   = previous month's billed total
+   Old months whose values were typed differently in the Excel sheets keep
+   their typed values (detected once, when the flag is missing). */
+function hasPrevData(ym) { return !!state.monthly[prevMonth(ym)]; }
+function paidSummary(ym) {
+  const c = calculateMonth(ym);
+  const pay = state.payments?.[ym] || {};
+  if (!c) return null;
+  const flats = FLATS.filter(f => pay[f]);
+  return { amount: flats.reduce((s, f) => s + (c.flatTotals[f] || 0), 0), count: flats.length, billed: c.grandTotalCollection,
+           unpaid: FLATS.filter(f => !pay[f]) };
+}
+function syncLinks() {
+  const months = Object.keys(state.monthly).sort();
+  const changed = [];
+  months.forEach(ym => {
+    const r = state.monthly[ym].reconciliation;
+    if (!r) return;
+    const prevYm = prevMonth(ym);
+    if (!state.monthly[prevYm]) {
+      if (r.balance_linked === undefined) r.balance_linked = false;
+      if (r.collection_linked === undefined) r.collection_linked = false;
+      return;
+    }
+    const pc = calculateMonth(prevYm);
+    const close = pc.reconciliation.carried_forward, billed = pc.grandTotalCollection;
+    if (r.balance_linked === undefined) r.balance_linked = Math.round(r.balance_from_last || 0) === Math.round(close);
+    if (r.collection_linked === undefined) r.collection_linked = (r.monthly_collection || 0) === billed;
+    if (r.balance_linked && r.balance_from_last !== close) { r.balance_from_last = close; changed.push(ym); }
+    if (r.collection_linked && r.monthly_collection !== billed) { r.monthly_collection = billed; changed.push(ym); }
+  });
+  return [...new Set(changed)];
+}
+
+/* Estimated expense lines of a month, exactly as they were billed */
+function estimatedExpenseLines(ym) {
+  const m = state.monthly[ym];
+  if (!m) return [];
+  const lines = [];
+  const w = m.water || {};
+  const rate = w.tanker_rate || state.config.tanker_rate;
+  if ((w.tankers_count || 0) > 0) lines.push({ name: `Water tankers (${w.tankers_count} × ₹${rate})`, estimated: (w.tankers_count || 0) * rate });
+  if ((w.pump_electricity || 0) > 0) lines.push({ name: 'Pump electricity', estimated: w.pump_electricity, fixed: true });
+  (m.common_expenses || []).forEach(e => { if (e.name) lines.push({ name: e.name, estimated: Number(e.amount) || 0 }); });
+  return lines.map(l => ({ ...l, amount: l.estimated }));
+}
+function isFixedLine(e) { return !!e && (e.fixed || /^pump electricity$/i.test(String(e.name || '').trim())); }
+function sumAmounts(list, key = 'amount') { return (list || []).reduce((s, e) => s + (Number(e[key]) || 0), 0); }
 
 /* Get list of all months that have monthly data, sorted newest-first */
 function listMonths() {
@@ -1873,7 +1971,7 @@ function renderDashboard() {
       <div class="heading-bar hb-emerald">
         <div class="hb-icon">=</div>
         <div class="hb-text"><div class="hb-title">${ymToShort(calc.reconciliation.prev_month)} reconciliation</div></div>
-        <div class="hb-meta">Carried ${fmtINR(calc.reconciliation.carried_forward)} to ${ymToShort(ym)}</div>
+        <div class="hb-meta">Carried ${fmtINR(calc.reconciliation.carried_forward)} to ${ymToShort(ym)} · ${calc.reconciliation.actual_expenses ? 'actual expenses ✓' : (isStillEstimate(ym) ? 'expenses still estimated' : 'expenses as entered')}</div>
       </div>
       <div class="recon-grid">
         <div class="recon-cell">
@@ -1896,10 +1994,16 @@ function renderDashboard() {
       <div class="heading-bar hb-amber">
         <div class="hb-icon">$</div>
         <div class="hb-text"><div class="hb-title">${ymToShort(calc.reconciliation.prev_month)} expense breakdown</div></div>
-        <div class="hb-meta">where the ${fmtINR(calc.reconciliation.total_expenditure)} went</div>
+        <div class="hb-meta">${calc.reconciliation.actual_expenses ? 'actual amounts paid' : 'where the ' + fmtINR(calc.reconciliation.total_expenditure) + ' went'}</div>
       </div>
       <div class="card">
-        <div class="exp-line"><span class="exp-l">Common Expenses</span><span class="exp-v">${fmtINR(calc.reconciliation.prev_expense_base)}</span></div>
+        ${calc.reconciliation.actual_expenses ? `
+          ${calc.reconciliation.actual_expenses.map(e => `
+            <div class="exp-line"><span class="exp-l">${e.name}${e.estimated != null && Number(e.estimated) !== Number(e.amount) ? ` <span class="exp-est">est. ${fmtINR(e.estimated)}</span>` : (e.estimated == null ? ' <span class="exp-est" style="text-decoration:none">not estimated</span>' : '')}</span><span class="exp-v">${fmtINR(e.amount)}</span></div>
+          `).join('')}
+          ${(() => { const d = calc.reconciliation.prev_expense_base - calc.reconciliation.estimated_base;
+            return `<div class="exp-line exp-vs"><span class="exp-l">Actual vs estimate (${fmtINR(calc.reconciliation.estimated_base)})</span><span class="exp-v ${d > 0 ? 'over' : d < 0 ? 'under' : ''}">${d === 0 ? 'Same' : (d > 0 ? '+' : '−') + fmtINR(Math.abs(d))}</span></div>`; })()}
+        ` : `<div class="exp-line"><span class="exp-l">Common Expenses</span><span class="exp-v">${fmtINR(calc.reconciliation.prev_expense_base)}</span></div>`}
         ${calc.reconciliation.extra_expenses.map(e => `
           <div class="exp-line"><span class="exp-l">${e.name}</span><span class="exp-v">${fmtINR(e.amount)}</span></div>
         `).join('')}
@@ -2453,17 +2557,22 @@ function renderEntry() {
       <div class="grid-3">
         <div class="field" style="margin-bottom: 0;">
           <label class="field-label">${ymToShort(prevYm)} collection</label>
-          <input type="number" class="field-input" id="ent-recon-coll" inputmode="numeric" value="${entryState.recon.monthly_collection}">
+          <input type="number" class="field-input ${entryState.recon.collection_linked ? 'linked' : ''}" id="ent-recon-coll" inputmode="numeric" value="${entryState.recon.monthly_collection}">
+          <div class="link-note" id="coll-note"></div>
         </div>
         <div class="field" style="margin-bottom: 0;">
           <label class="field-label">Balance from earlier</label>
-          <input type="number" class="field-input" id="ent-recon-bal" inputmode="numeric" value="${entryState.recon.balance_from_last}">
+          <input type="number" class="field-input ${entryState.recon.balance_linked ? 'linked' : ''}" id="ent-recon-bal" inputmode="numeric" value="${entryState.recon.balance_from_last}">
+          <div class="link-note" id="bal-note"></div>
         </div>
         <div class="field" style="margin-bottom: 0;">
-          <label class="field-label">${ymToShort(prevYm)} common total</label>
-          <input type="number" class="field-input" id="ent-recon-base" inputmode="numeric" value="${entryState.recon.prev_expense_base}">
+          <label class="field-label">${ymToShort(prevYm)} expenses (actual)</label>
+          ${entryState.recon.actual_expenses?.length
+            ? `<input type="number" class="field-input" id="ent-recon-base" value="${sumAmounts(entryState.recon.actual_expenses)}" readonly style="background:#f1f5f9;" title="Total of the actual amounts below">`
+            : `<input type="number" inputmode="numeric" class="field-input" id="ent-recon-base" value="${entryState.recon.prev_expense_base}">`}
         </div>
       </div>
+      ${renderActualExpenses(prevYm)}
       <div style="margin-top: 14px;">
         <label class="field-label">Extra ad-hoc expenses paid in ${ymToShort(prevYm)}</label>
         <div id="extra-expenses-list">
@@ -2510,6 +2619,9 @@ function bootstrapEntryState(ym) {
         monthly_collection: existing.reconciliation.monthly_collection,
         balance_from_last: existing.reconciliation.balance_from_last,
         prev_expense_base: existing.reconciliation.prev_expense_base,
+        actual_expenses: (existing.reconciliation.actual_expenses || []).map(e => ({...e})),
+        balance_linked: existing.reconciliation.balance_linked !== false && hasPrevData(ym),
+        collection_linked: existing.reconciliation.collection_linked !== false && hasPrevData(ym),
         extra_expenses: existing.reconciliation.extra_expenses.map(e => ({...e}))
       }
     };
@@ -2540,7 +2652,10 @@ function bootstrapEntryState(ym) {
       prev_month: prevYm,
       monthly_collection: prevCalc?.grandTotalCollection || 0,
       balance_from_last: prevCalc?.reconciliation.carried_forward || 0,
+      balance_linked: !!prevCalc,
+      collection_linked: !!prevCalc,
       prev_expense_base: (prevCalc?.commonExpensesTotal || 0) + (prevCalc?.totalWaterBill || 0),
+      actual_expenses: estimatedExpenseLines(prevYm),
       extra_expenses: []
     }
   };
@@ -2667,14 +2782,27 @@ function wireEntryEvents() {
   });
 
   // Recon
+  updateActualTotals();
+  refreshLinkedValues();
   document.getElementById('ent-recon-coll').addEventListener('input', e => {
     entryState.recon.monthly_collection = Number(e.target.value) || 0;
+    entryState.recon.collection_linked = false; e.target.classList.remove('linked'); updateLinkNotes();
   });
   document.getElementById('ent-recon-bal').addEventListener('input', e => {
     entryState.recon.balance_from_last = Number(e.target.value) || 0;
+    entryState.recon.balance_linked = false; e.target.classList.remove('linked'); updateLinkNotes();
   });
   document.getElementById('ent-recon-base').addEventListener('input', e => {
+    if (entryState.recon.actual_expenses?.length) return;
     entryState.recon.prev_expense_base = Number(e.target.value) || 0;
+  });
+  const actList = document.getElementById('actual-expenses-list');
+  if (actList) actList.addEventListener('input', e => {
+    const row = e.target.closest('.act-row');
+    if (!row) return;
+    const item = entryState.recon.actual_expenses[+row.dataset.idx];
+    if (e.target.classList.contains('act-name')) item.name = e.target.value;
+    if (e.target.classList.contains('act-amt')) { item.amount = Number(e.target.value) || 0; updateActualTotals(); }
   });
 
   // Extra expenses
@@ -2713,6 +2841,199 @@ function updateWaterSummary() {
 
 function addCommonExpense() {
   entryState.commonExpenses.push({ name: '', amount: 0 });
+  renderEntry();
+}
+function renderActualExpenses(prevYm) {
+  const list = entryState.recon.actual_expenses || [];
+  if (!list.length) {
+    const can = !!state.monthly[prevYm];
+    return can ? `
+      <div class="act-empty">
+        <div>Using one total for ${ymToShort(prevYm)}. Enter the <b>actual amounts</b> item by item to correct last month's estimate.</div>
+        <button class="btn btn-secondary btn-small" onclick="startActualExpenses()">✏️ Enter actual ${ymToShort(prevYm)} expenses</button>
+      </div>` : '';
+  }
+  return `
+    <div class="act-box">
+      <div class="act-head">
+        <span>Actual ${ymToShort(prevYm)} expenses</span>
+        <span class="act-hint">estimate shown under each · change what was really paid</span>
+      </div>
+      <div id="actual-expenses-list">
+        ${list.map((e, i) => `
+          <div class="act-row" data-idx="${i}">
+            <div class="act-left">
+              <input type="text" class="field-input act-name" value="${escapeAttr(e.name)}" placeholder="Expense">
+              <div class="act-est">${isFixedLine(e) ? 'Fixed ₹2,000 for water calculation' : e.estimated != null ? 'Estimated ' + fmtINR(e.estimated) : 'Not in estimate'}</div>
+            </div>
+            ${isFixedLine(e)
+              ? `<input type="number" class="field-input act-amt fixed" value="${e.amount}" readonly title="Fixed for the water calculation">
+                 <span class="fixed-tag">fixed</span>`
+              : `<input type="number" inputmode="numeric" class="field-input act-amt ${e.estimated != null && Number(e.amount) !== Number(e.estimated) ? 'changed' : ''}" value="${e.amount}">
+                 <button class="btn-icon" onclick="removeActualExpense(${i})" title="Remove">✕</button>`}
+          </div>`).join('')}
+      </div>
+      <button class="add-row-btn" onclick="addActualExpense()">+ Add an item not in the estimate</button>
+      <div class="act-totals" id="act-totals"></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+        <button class="btn btn-ghost btn-small" onclick="resetActualToEstimate()">↺ Reset to estimate</button>
+        <button class="btn btn-ghost btn-small" onclick="stopActualExpenses()">Use a single total instead</button>
+      </div>
+    </div>`;
+}
+/* ---- Data check ---------------------------------------------------- */
+function estimateTotal(ym) {
+  const m = state.monthly[ym]; if (!m) return null;
+  return sumAmounts(estimatedExpenseLines(ym), 'estimated');
+}
+function isStillEstimate(ym) {
+  const r = state.monthly[ym]?.reconciliation; if (!r || (r.actual_expenses && r.actual_expenses.length)) return false;
+  const est = estimateTotal(prevMonth(ym));
+  return est != null && est > 0 && Math.round(r.prev_expense_base || 0) === Math.round(est);
+}
+function dataCheck() {
+  const issues = [];            // {level:'warn'|'info', text, action, label}
+  const months = Object.keys(state.monthly).sort();
+  const recentFrom = months.length ? months[Math.max(0, months.length - 13)] : '';
+  months.forEach(ym => {
+    if (isStillEstimate(ym))
+      issues.push({ level: 'warn', ym, text: `<b>${ymToShort(prevMonth(ym))}</b> expenses are still the estimate — enter what was actually paid (in ${ymToShort(ym)}).`, action: `openEntryFor('${ym}', true)`, label: 'Enter actuals' });
+    else {
+      const a = state.monthly[ym].reconciliation?.actual_expenses;
+      if (a && a.length && a.every(e => e.estimated == null || Number(e.amount) === Number(e.estimated)))
+        issues.push({ level: 'info', ym, text: `<b>${ymToShort(prevMonth(ym))}</b> actual expenses are exactly the estimate — update any item that was different (in ${ymToShort(ym)}).`, action: `openEntryFor('${ym}', true)`, label: 'Review' });
+    }
+  });
+  const rm = Object.keys(state.readings).sort();
+  rm.forEach(ym => {
+    if (ym < recentFrom) return;
+    const cur = state.readings[ym], prev = state.readings[prevMonth(ym)];
+    if (!prev) return;
+    const missing = state.monthly[ym] ? FLATS.filter(f => cur[f] == null) : [];
+    if (missing.length) issues.push({ level: 'warn', ym, text: `<b>${ymToShort(ym)}</b>: ${missing.length === FLAT_COUNT ? 'meter readings not entered yet' : 'no meter reading for ' + missing.join(', ')}.`, action: `openEntryFor('${ym}')`, label: 'Open' });
+    FLATS.forEach(f => {
+      if (cur[f] == null) return;
+      else if (prev[f] != null && cur[f] != null && cur[f] < prev[f]) issues.push({ level: 'warn', ym, text: `<b>${ymToShort(ym)} · ${f}</b>: reading ${cur[f]} is lower than ${ymToShort(prevMonth(ym))} (${prev[f]}) — water charged ₹0. Typo or new meter?`, action: `openEntryFor('${ym}')`, label: 'Check' });
+    });
+  });
+  const pm = Object.keys(state.payments || {}).sort();
+  pm.forEach(ym => {
+    if (!state.monthly[ym]) return;
+    const ps = paidSummary(ym);
+    if (ps && ps.count && ps.unpaid.length && ps.unpaid.length < FLAT_COUNT)
+      issues.push({ level: 'info', ym, text: `<b>${ymToShort(ym)}</b>: ${ps.unpaid.length} flat${ps.unpaid.length > 1 ? 's' : ''} not marked paid (${ps.unpaid.join(', ')}) — ${fmtINR(ps.billed - ps.amount)}.`, action: `openCollectFor('${ym}')`, label: 'Collect' });
+  });
+  const manualBal = months.filter(ym => hasPrevData(ym) && state.monthly[ym].reconciliation?.balance_linked === false);
+  const manualColl = months.filter(ym => hasPrevData(ym) && state.monthly[ym].reconciliation?.collection_linked === false);
+  return { issues, manualBal, manualColl, months };
+}
+function openEntryFor(ym, scrollRecon) {
+  entryState = null;
+  state.ui.selected_month = ym;
+  navigate('entry');
+  const pick = document.getElementById('entry-month-pick');
+  if (pick && pick.value !== ym) { pick.value = ym; pick.dispatchEvent(new Event('change')); }
+  if (scrollRecon) setTimeout(() => {
+    const t = [...document.querySelectorAll('.entry-section-title')].find(x => /reconciliation/i.test(x.textContent));
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 250);
+}
+function openCollectFor(ym) { state.ui.coll_month = ym; state.ui.selected_month = ym; navigate('collection'); }
+function renderDataCheckCard() {
+  const d = dataCheck();
+  const warns = d.issues.filter(i => i.level === 'warn'), infos = d.issues.filter(i => i.level === 'info');
+  const row = i => `<div class="dc-row ${i.level}"><div class="dc-text">${i.text}</div>${i.action ? `<button class="btn btn-secondary btn-small" onclick="${i.action}">${i.label}</button>` : ''}</div>`;
+  return `
+    <div class="settings-card dc-card">
+      <div class="settings-title">🩺 Data check</div>
+      <div class="kv-row"><span>Months checked</span><span>${d.months.length}</span></div>
+      <div class="kv-row"><span>Opening balances linked</span><span class="ok-t">${d.months.length - d.manualBal.length - 1} of ${d.months.length - 1}</span></div>
+      ${warns.length ? warns.map(row).join('') : '<div class="dc-row ok"><div class="dc-text">✓ No problems found in the calculations.</div></div>'}
+      ${infos.length ? `<div class="dc-sub">For information</div>${infos.map(row).join('')}` : ''}
+      ${d.manualBal.length ? `<div class="dc-sub">Kept from your Excel sheets</div><div class="dc-row info"><div class="dc-text">${d.manualBal.length} older months (${d.manualBal.map(ymToShort).join(', ')}) use the opening balance typed in the Excel sheet instead of the previous month's closing balance (e.g. Flat 305 adjustments). They are left as they were.</div></div>` : ''}
+    </div>`;
+}
+
+/* Linked fields always show the current value of last month */
+function refreshLinkedValues() {
+  const prevYm = prevMonth(entryState.ym);
+  const pc = state.monthly[prevYm] ? calculateMonth(prevYm) : null;
+  if (pc && entryState.recon.balance_linked) entryState.recon.balance_from_last = pc.reconciliation.carried_forward;
+  if (pc && entryState.recon.collection_linked) entryState.recon.monthly_collection = pc.grandTotalCollection;
+  const b = document.getElementById('ent-recon-bal'), c = document.getElementById('ent-recon-coll');
+  if (b) b.value = entryState.recon.balance_from_last;
+  if (c) c.value = entryState.recon.monthly_collection;
+  updateLinkNotes();
+}
+function updateLinkNotes() {
+  const prevYm = prevMonth(entryState.ym);
+  const pc = state.monthly[prevYm] ? calculateMonth(prevYm) : null;
+  const bn = document.getElementById('bal-note'), cn = document.getElementById('coll-note');
+  if (!pc) { if (bn) bn.innerHTML = ''; if (cn) cn.innerHTML = ''; return; }
+  const close = pc.reconciliation.carried_forward, R = entryState.recon;
+  if (bn) bn.innerHTML = R.balance_linked
+    ? `🔗 ${ymToShort(prevYm)} closing balance · updates automatically`
+    : (Math.round(R.balance_from_last) === Math.round(close)
+        ? `Same as ${ymToShort(prevYm)} closing · <a href="#" onclick="relinkBalance();return false;">keep linked</a>`
+        : `<span class="warn">⚠ ${ymToShort(prevYm)} closed at ${fmtINR(close)}</span> · <a href="#" onclick="relinkBalance();return false;">use it</a>`);
+  const ps = paidSummary(prevYm);
+  if (cn) {
+    let h = R.collection_linked ? `🔗 ${ymToShort(prevYm)} billed total · updates automatically`
+          : (R.monthly_collection === pc.grandTotalCollection ? `Same as billed · <a href="#" onclick="relinkCollection();return false;">keep linked</a>`
+          : `Billed ${fmtINR(pc.grandTotalCollection)} · <a href="#" onclick="relinkCollection();return false;">use billed</a>`);
+    if (ps && ps.count) h += `<br>Collect tab: ${fmtINR(ps.amount)} paid by ${ps.count}/${FLAT_COUNT} flats${ps.amount !== R.monthly_collection ? ` · <a href="#" onclick="useCollected();return false;">use paid</a>` : ''}`;
+    cn.innerHTML = h;
+  }
+}
+function relinkBalance() { entryState.recon.balance_linked = true; refreshLinkedValues(); document.getElementById('ent-recon-bal').classList.add('linked'); }
+function relinkCollection() { entryState.recon.collection_linked = true; refreshLinkedValues(); document.getElementById('ent-recon-coll').classList.add('linked'); }
+function useCollected() {
+  const ps = paidSummary(prevMonth(entryState.ym));
+  if (!ps) return;
+  entryState.recon.monthly_collection = ps.amount; entryState.recon.collection_linked = false;
+  const c = document.getElementById('ent-recon-coll'); c.value = ps.amount; c.classList.remove('linked');
+  updateLinkNotes();
+}
+function escapeAttr(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+function updateActualTotals() {
+  const list = entryState.recon.actual_expenses || [];
+  const box = document.getElementById('act-totals');
+  if (!box) return;
+  const est = sumAmounts(list, 'estimated'), act = sumAmounts(list), diff = act - est;
+  box.innerHTML = `
+    <div><span>Estimated</span><b>${fmtINR(est)}</b></div>
+    <div><span>Actual</span><b>${fmtINR(act)}</b></div>
+    <div class="${diff > 0 ? 'over' : diff < 0 ? 'under' : ''}"><span>${diff > 0 ? 'Spent more' : diff < 0 ? 'Spent less' : 'Difference'}</span><b>${diff === 0 ? '₹0' : fmtINR(Math.abs(diff))}</b></div>`;
+  const base = document.getElementById('ent-recon-base');
+  if (base) base.value = act;
+  document.querySelectorAll('#actual-expenses-list .act-row').forEach(row => {
+    const it = list[+row.dataset.idx];
+    const inp = row.querySelector('.act-amt');
+    if (inp && it) inp.classList.toggle('changed', it.estimated != null && Number(it.amount) !== Number(it.estimated));
+  });
+}
+function startActualExpenses() {
+  const lines = estimatedExpenseLines(entryState.recon.prev_month || prevMonth(entryState.ym));
+  entryState.recon.actual_expenses = lines.length ? lines : [{ name: 'Common expenses', estimated: entryState.recon.prev_expense_base, amount: entryState.recon.prev_expense_base }];
+  renderEntry();
+}
+function stopActualExpenses() {
+  if (!confirm('Go back to a single expense total? The item-wise amounts will be removed.')) return;
+  entryState.recon.prev_expense_base = sumAmounts(entryState.recon.actual_expenses);
+  entryState.recon.actual_expenses = [];
+  renderEntry();
+}
+function resetActualToEstimate() {
+  (entryState.recon.actual_expenses || []).forEach(e => { if (e.estimated != null) e.amount = e.estimated; });
+  entryState.recon.actual_expenses = entryState.recon.actual_expenses.filter(e => e.estimated != null || isFixedLine(e));
+  renderEntry();
+}
+function addActualExpense() {
+  entryState.recon.actual_expenses.push({ name: '', estimated: null, amount: 0 });
+  renderEntry();
+}
+function removeActualExpense(i) {
+  entryState.recon.actual_expenses.splice(i, 1);
   renderEntry();
 }
 function addExtraExpense() {
@@ -2857,7 +3178,14 @@ function saveEntry(silent) {
       prev_month: entryState.recon.prev_month,
       monthly_collection: entryState.recon.monthly_collection,
       balance_from_last: entryState.recon.balance_from_last,
-      prev_expense_base: entryState.recon.prev_expense_base,
+      balance_linked: !!entryState.recon.balance_linked,
+      collection_linked: !!entryState.recon.collection_linked,
+      prev_expense_base: entryState.recon.actual_expenses?.length
+        ? sumAmounts(entryState.recon.actual_expenses)       // kept for older versions of the app
+        : entryState.recon.prev_expense_base,
+      ...(entryState.recon.actual_expenses?.length
+        ? { actual_expenses: entryState.recon.actual_expenses.filter(e => e.name).map(e => ({ name: e.name, estimated: e.estimated ?? null, amount: Number(e.amount) || 0, ...(isFixedLine(e) ? { fixed: true } : {}) })) }
+        : {}),
       extra_expenses: entryState.recon.extra_expenses.filter(e => e.name).map(e => ({...e}))
     }
   };
@@ -2886,6 +3214,8 @@ function renderSettings() {
     </div>
 
     <div class="settings-grid">
+
+      ${renderDataCheckCard()}
 
       <div class="settings-card">
         <div class="settings-title">🤖 AI reader (watchman's sheet)</div>
@@ -3176,7 +3506,10 @@ function exportExcel() {
       ['Monthly collection', calc.reconciliation.monthly_collection],
       ['Balance from earlier', calc.reconciliation.balance_from_last],
       ['Total collection', calc.reconciliation.total_collection],
-      ['Common expense base', calc.reconciliation.prev_expense_base],
+      ...(calc.reconciliation.actual_expenses
+        ? [['Expense (actual)', 'Actual', 'Estimated'], ...calc.reconciliation.actual_expenses.map(e => [e.name, e.amount, e.estimated ?? '']),
+           ['Actual expenses total', calc.reconciliation.prev_expense_base, calc.reconciliation.estimated_base]]
+        : [['Common expense base', calc.reconciliation.prev_expense_base]]),
       ...calc.reconciliation.extra_expenses.map(e => [e.name, e.amount]),
       ['Total expenditure', calc.reconciliation.total_expenditure],
       ['Carried forward', calc.reconciliation.carried_forward]
@@ -3859,6 +4192,7 @@ document.querySelectorAll('.nav-tab, .bn-btn').forEach(tab => {
 /* ==================================================================== */
 (async function init() {
   try { initState(); } catch (e) { console.error('init', e); }
+  try { const before = JSON.stringify(state.monthly); syncLinks(); if (JSON.stringify(state.monthly) !== before) saveState(); } catch (e) { console.error('links', e); }
   document.querySelector('.brand-name').textContent = state.config.society_name;
   navigate('dashboard');            // show the app straight away
   try { makeAppIcon(); } catch (e) {}
